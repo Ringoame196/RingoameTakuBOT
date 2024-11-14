@@ -5,12 +5,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageType
-import net.dv8tion.jda.api.entities.channel.concrete.Category
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.example.EmbedData
 import org.example.Managers.DiscordManager
 import java.awt.Color
 
@@ -24,6 +23,7 @@ class CommandEvent : ListenerAdapter() {
             "stop" -> stopCommand(e)
             "reset" -> resetCommand(e)
             "makeho" -> makeHOCommand(e)
+            "schedule" -> scheduleCommand(e)
             else -> e.reply("不明なコマンドです。").queue()
         }
     }
@@ -107,13 +107,16 @@ class CommandEvent : ListenerAdapter() {
         val message = "HOチャンネル作成完了しました"
         e.reply(message).queue()
     }
+
+    private fun scheduleCommand(e: SlashCommandInteractionEvent) {}
+
     private fun sendEndMessage(textChannel: MessageChannelUnion, deleteCount:Int, clearReactionCount:Int) {
-        val result: Map<String, String> = mapOf(
-            "メッセージ削除数" to "${deleteCount}個",
-            "リアクション削除" to "${clearReactionCount}個"
+        val result = mutableListOf(
+            MessageEmbed.Field("メッセージ削除数","${deleteCount}個",true),
+            MessageEmbed.Field("リアクション削除数","${clearReactionCount}個",true)
         )
 
-        val endMessageEmbed = EmbedData(title = "[リセット]", description =  "「${textChannel.name}」チャンネルのリセット", color = Color.red,result)
-        discordManager.sendEmbed(textChannel,endMessageEmbed)
+        val embed = discordManager.makeEmbed(title = "[リセット]", descriptor =  "「${textChannel.name}」チャンネルのリセット", color = Color.red,fields = result)
+        discordManager.sendEmbed(textChannel,embed)
     }
 }
