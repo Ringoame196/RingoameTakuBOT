@@ -17,6 +17,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.0")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    val sqliteVersion = "3.46.1.0"
+    implementation("org.xerial:sqlite-jdbc:$sqliteVersion") // 最新バージョンを指定してください
 }
 
 tasks.test {

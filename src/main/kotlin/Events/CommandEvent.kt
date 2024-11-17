@@ -11,10 +11,17 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.example.Managers.DiscordManager
+import org.example.Managers.ScheduleManager
 import java.awt.Color
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
+
 
 class CommandEvent : ListenerAdapter() {
     private val discordManager = DiscordManager()
+    private val scheduleManager = ScheduleManager()
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
 
@@ -24,6 +31,8 @@ class CommandEvent : ListenerAdapter() {
             "reset" -> resetCommand(e)
             "makeho" -> makeHOCommand(e)
             "schedule" -> scheduleCommand(e)
+            "deleteschedule" -> deleteSchedule(e)
+            "listschedule" -> listSchedule(e)
             else -> e.reply("不明なコマンドです。").queue()
         }
     }
@@ -74,6 +83,16 @@ class CommandEvent : ListenerAdapter() {
         }
     }
 
+    private fun sendEndMessage(textChannel: MessageChannelUnion, deleteCount:Int, clearReactionCount:Int) {
+        val result = mutableListOf(
+            MessageEmbed.Field("メッセージ削除数","${deleteCount}個",false),
+            MessageEmbed.Field("リアクション削除数","${clearReactionCount}個",false)
+        )
+
+        val embed = discordManager.makeEmbed(title = "[リセット]", descriptor =  "「${textChannel.name}」チャンネルのリセット", color = Color.red,fields = result)
+        discordManager.sendEmbed(textChannel,embed)
+    }
+
     private fun makeHOCommand(e: SlashCommandInteractionEvent) {
         val guild = e.guild
         val scenarioName = e.getOption("scenarioname")?.asString ?:return
@@ -108,15 +127,59 @@ class CommandEvent : ListenerAdapter() {
         e.reply(message).queue()
     }
 
-    private fun scheduleCommand(e: SlashCommandInteractionEvent) {}
+    private fun scheduleCommand(e: SlashCommandInteractionEvent) {
+        val dayString = e.getOption("day")?.asString ?: return
+        val timeString = e.getOption("time")?.asString ?: return
+        val channel = e.getOption("channel")?.asChannel ?: return
+        val scenarioName = e.getOption("scenarioname")?.asString ?: return
+        val channelID = channel.id
+        val dateData = "${dayString}T${timeString}"
+        val status = 0 // 0:未設定 1:一週間前通知済み 2:一日前通知済み
 
-    private fun sendEndMessage(textChannel: MessageChannelUnion, deleteCount:Int, clearReactionCount:Int) {
-        val result = mutableListOf(
-            MessageEmbed.Field("メッセージ削除数","${deleteCount}個",true),
-            MessageEmbed.Field("リアクション削除数","${clearReactionCount}個",true)
+        scheduleManager.make(scenarioName, dateData, channelID, status)
+
+        // 日にち 時間が正しい形式か チェックする
+        if (!isValidDateTime(dateData)) {
+            val message = "日にち 時間の表記方法が間違っています"
+            e.reply(message).queue()
+            return
+        }
+
+
+
+        val title = "日程登録"
+        val color = Color.BLUE
+        val fields = mutableListOf(
+            MessageEmbed.Field("シナリオ名",scenarioName,false),
+            MessageEmbed.Field("日程",dateData,false),
+            MessageEmbed.Field("通知チャンネル","<#${channelID}>",false)
         )
+        val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
+        e.replyEmbeds(embed).queue()
+    }
 
-        val embed = discordManager.makeEmbed(title = "[リセット]", descriptor =  "「${textChannel.name}」チャンネルのリセット", color = Color.red,fields = result)
-        discordManager.sendEmbed(textChannel,embed)
+    private fun isValidDateTime(dateTime: String): Boolean {
+        try {
+            // LocalDateTimeの標準フォーマットで解析
+            LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            return true
+        } catch (e: DateTimeParseException) {
+            return false
+        }
+    }
+
+    private fun deleteSchedule(e: SlashCommandInteractionEvent) {
+        val id = e.getOption("id")?.asInt ?: return
+        scheduleManager.delete(id)
+        val title = "スケジュール削除"
+        val descriptor = "${id}のスケジュールを削除しました"
+        val color = Color.RED
+
+        val embed = discordManager.makeEmbed(title = title, descriptor = descriptor,color = color)
+        e.replyEmbeds(embed).queue()
+    }
+
+    private fun listSchedule(e:SlashCommandInteractionEvent) {
+        scheduleManager.sendAllSchedule(e)
     }
 }
