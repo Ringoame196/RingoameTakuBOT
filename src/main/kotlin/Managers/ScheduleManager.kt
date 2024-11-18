@@ -83,6 +83,7 @@ class ScheduleManager {
     }
 
     fun sendAllSchedule(e: SlashCommandInteractionEvent) {
+        val channel = e.channel
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME}"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(Data.dbFilePath ?: return,sqlCommand)
 
@@ -91,6 +92,7 @@ class ScheduleManager {
             e.reply(message).queue()
             return
         }
+        val replyMessage = "${scheduleDataList.size}個のスケジュールが見つかりました"
 
         for (scheduleData in scheduleDataList) {
             val id = scheduleData.id
@@ -110,7 +112,8 @@ class ScheduleManager {
             )
 
             val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
-            e.replyEmbeds(embed).queue()
+            channel.sendMessageEmbeds(embed).queue()
         }
+        e.reply(replyMessage).queue()
     }
 }
