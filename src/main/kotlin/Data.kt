@@ -1,6 +1,10 @@
 package org.example
 
+import net.dv8tion.jda.api.JDA
+
 object Data {
+    var jda:JDA? = null
+
     var dbFilePath:String? = null
     const val TABLE_NAME = "schedule"
     const val ID_KEY = "id"

@@ -7,12 +7,35 @@ import org.example.Data
 import java.awt.Color
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
+import java.util.Timer
+import java.util.TimerTask
 
 class ScheduleManager {
     private val databaseManager = DataBaseManager()
     private val discordManager = DiscordManager()
 
-    fun checkSchedule(jda: JDA) {
+    fun startFixedTermCheck() {
+        val timer = Timer()
+        val checkTimes = mutableListOf(0,12,20)
+
+        // 次の00分までの遅延時間を計算
+        val now = LocalDateTime.now()
+        val nextHour = now.plusHours(1).truncatedTo(ChronoUnit.HOURS)
+        val delay = java.time.Duration.between(now, nextHour).toMillis()
+
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                val currentHour = LocalDateTime.now().hour
+                println(currentHour)
+                if (!checkTimes.contains(currentHour)) return
+                checkSchedule()
+            }
+        }, delay, 3600 * 1000) // 3600秒(1時間)ごとに実行
+    }
+
+    fun checkSchedule() {
+        val jda = Data.jda ?: return
         val oneDay = 1
         val week = 7
         searchSchedule(oneDay,Data.NOTIFIED_WEEK_STATUS,jda)

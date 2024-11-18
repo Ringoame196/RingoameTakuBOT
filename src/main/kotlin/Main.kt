@@ -1,6 +1,5 @@
 package org.example
 
-import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -56,13 +55,16 @@ fun main() {
         Commands.slash("makeho", "HOチャンネルを作成する").addOption(OptionType.STRING,"scenarioname","シナリオの名前",true).addOption(OptionType.NUMBER,"honumber","HOの数",true),
         Commands.slash("schedule", "スケジュール設定").addOption(OptionType.STRING,"scenarioname","シナリオ名",true).addOption(OptionType.STRING,"day","予定日", true).addOption(OptionType.STRING,"time","時間",true).addOption(OptionType.CHANNEL,"channel","通知チャンネル",true),
         Commands.slash("deleteschedule","スケジュールを削除する").addOption(OptionType.INTEGER,"id","セッション管理id",true),
-        Commands.slash("listschedule","スケジュールを確認する")
+        Commands.slash("listschedule","スケジュールを確認する"),
+        Commands.slash("checkschedule", "スケジュール通知のチェック")
+
     ).queue()
 
     val scheduleManager = ScheduleManager()
     scheduleManager.oldAutoDelete()
 
     jda.awaitReady()
+    Data.jda = jda
 
-    scheduleManager.checkSchedule(jda)
+    scheduleManager.startFixedTermCheck()
 }

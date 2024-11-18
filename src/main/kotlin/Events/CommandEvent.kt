@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import org.example.Data
 import org.example.Managers.DiscordManager
 import org.example.Managers.ScheduleManager
 import java.awt.Color
@@ -33,7 +34,8 @@ class CommandEvent : ListenerAdapter() {
             "schedule" -> scheduleCommand(e)
             "deleteschedule" -> deleteSchedule(e)
             "listschedule" -> listSchedule(e)
-            else -> e.reply("不明なコマンドです。").queue()
+            "checkschedule" -> scheduleManager.checkSchedule()
+            else -> e.reply("未設定のコマンドです。").queue()
         }
     }
 
@@ -134,9 +136,6 @@ class CommandEvent : ListenerAdapter() {
         val scenarioName = e.getOption("scenarioname")?.asString ?: return
         val channelID = channel.id
         val dateData = "${dayString}T${timeString}"
-        val status = 0 // 0:未設定 1:一週間前通知済み 2:一日前通知済み
-
-        scheduleManager.make(scenarioName, dateData, channelID, status)
 
         // 日にち 時間が正しい形式か チェックする
         if (!isValidDateTime(dateData)) {
@@ -144,8 +143,12 @@ class CommandEvent : ListenerAdapter() {
             e.reply(message).queue()
             return
         }
-
-
+        val status = if (isWithinOneWeek(dateData)) {
+            Data.NOTIFIED_WEEK_STATUS
+        } else {
+            Data.UN_NOTIFIED_STATUS
+        } // 0:未設定 1:一週間前通知済み 2:一日前通知済み
+        scheduleManager.make(scenarioName, dateData, channelID, status)
 
         val title = "日程登録"
         val color = Color.BLUE
@@ -166,6 +169,22 @@ class CommandEvent : ListenerAdapter() {
         } catch (e: DateTimeParseException) {
             return false
         }
+    }
+
+    private fun isWithinOneWeek(dateData:String): Boolean {
+        val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+        // 文字列からLocalDateTimeを生成
+        val dateTime = LocalDateTime.parse(dateData, dateTimeFormatter)
+
+        // 現在時刻
+        val now = LocalDateTime.now()
+
+        // 1週間後の時刻
+        val oneWeekLater = now.plusWeeks(1)
+
+        // 日時が現在から1週間以内かをチェック
+        return dateTime.isAfter(now) && dateTime.isBefore(oneWeekLater)
     }
 
     private fun deleteSchedule(e: SlashCommandInteractionEvent) {
