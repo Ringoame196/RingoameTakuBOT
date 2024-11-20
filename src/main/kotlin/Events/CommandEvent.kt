@@ -34,7 +34,7 @@ class CommandEvent : ListenerAdapter() {
             "schedule" -> scheduleCommand(e)
             "deleteschedule" -> deleteSchedule(e)
             "listschedule" -> listSchedule(e)
-            "checkschedule" -> scheduleManager.checkSchedule()
+            "checkschedule" -> checkSchedule(e)
             else -> e.reply("未設定のコマンドです。").queue()
         }
     }
@@ -200,5 +200,11 @@ class CommandEvent : ListenerAdapter() {
 
     private fun listSchedule(e:SlashCommandInteractionEvent) {
         scheduleManager.sendAllSchedule(e)
+    }
+
+    private fun checkSchedule(e:SlashCommandInteractionEvent) {
+        scheduleManager.checkSchedule()
+        val message = "チェックを開始します"
+        e.reply(message).queue()
     }
 }

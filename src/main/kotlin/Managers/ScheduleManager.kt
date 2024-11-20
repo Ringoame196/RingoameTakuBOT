@@ -27,7 +27,6 @@ class ScheduleManager {
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 val currentHour = LocalDateTime.now().hour
-                println(currentHour)
                 if (!checkTimes.contains(currentHour)) return
                 checkSchedule()
             }
@@ -43,10 +42,11 @@ class ScheduleManager {
     }
 
     private fun searchSchedule(period:Int, status:Int, jda: JDA) {
-        val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} WHERE ${Data.DATE_KEY} >= DATETIME('now') AND ${Data.DATE_KEY} <= DATETIME('now', '+${period + 1} day') AND ${Data.STATUS_KEY} <= $status;"
+        val where = "WHERE ${Data.DATE_KEY} <= DATETIME('now', 'localtime', '+${period + 1} days') AND ${Data.STATUS_KEY} <= $status"
+        val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} $where;"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(Data.dbFilePath ?: return,sqlCommand)
 
-        val updateSqlCommand = "UPDATE ${Data.TABLE_NAME} SET ${Data.STATUS_KEY} = ${status + 1} WHERE ${Data.DATE_KEY} >= DATETIME('now') AND ${Data.DATE_KEY} <= DATETIME('now', '+${period + 1} day') AND ${Data.STATUS_KEY} <= $status;"
+        val updateSqlCommand = "UPDATE ${Data.TABLE_NAME} SET ${Data.STATUS_KEY} = ${status + 1} $where;"
         databaseManager.runSQLCommand(Data.dbFilePath ?: return, updateSqlCommand)
 
             for (scheduleData in scheduleDataList) {
@@ -58,7 +58,7 @@ class ScheduleManager {
 
                 val sendChannel = jda.getTextChannelById(channelId) ?: return
 
-                var message = "## [🔔セッション通知]\n「${scenarioName}」のセッションまで${period}日を切ったことをお知らせします。\nセッション日：<t:$dateStamp:f>\n残り：<t:$dateStamp:R>"
+                var message = "## [🔔セッション通知]\n「${scenarioName}」のセッションまで${period}日なことをお知らせします。\nセッション日：<t:$dateStamp:f>\n残り：<t:$dateStamp:R>"
 
                 // 1日前の場合のみ メンションをする
                 if (period == 1) message = "@everyone\n$message"
