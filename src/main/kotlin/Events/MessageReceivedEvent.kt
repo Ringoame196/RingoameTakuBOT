@@ -19,14 +19,23 @@ class MessageReceivedEvent: ListenerAdapter() {
         val numOfDice = matchResult.groupValues[1].toInt()  // 第一キャプチャグループ: サイコロの数
         val diceSides = matchResult.groupValues[2].toInt()  // 第二キャプチャグループ: サイコロの面数
 
-        val diceList = List(numOfDice) { Random.nextInt(1, diceSides + 1) }
-        val diceTotal = diceList.sum()
+        try {
+            val diceList = List(numOfDice) { Random.nextInt(1, diceSides + 1) }
+            val diceTotal = diceList.sum()
 
-        val title = "ダイス結果"
-        val dice = if (diceList.size == 1) "$diceTotal"
-        else "$diceList → $diceTotal"
-        val color = Color.GREEN
-        val embed = discordManager.makeEmbed(title, descriptor = dice, color =  color, author = author)
-        e.message.replyEmbeds(embed).queue()
+            val title = "ダイス結果"
+            val dice = if (diceList.size == 1) "$diceTotal"
+            else "$diceList → $diceTotal"
+            val descriptor = "$message -> $dice"
+            val color = Color.GREEN
+            val embed = discordManager.makeEmbed(title, descriptor = descriptor, color =  color, author = author)
+            e.message.replyEmbeds(embed).queue()
+        } catch (error:IllegalArgumentException) {
+            val title = "エラー"
+            val color = Color.RED
+            val descriptor = "ダイス目が大きすぎるため処理できませんでした"
+            val embed = discordManager.makeEmbed(title = title,color = color, descriptor = descriptor)
+            e.message.replyEmbeds(embed).queue()
+        }
     }
 }

@@ -3,10 +3,10 @@ package org.example.Managers
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import org.example.Data
+import org.example.datas.Data
+import org.example.datas.ScheduleData
 import java.awt.Color
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.Timer
 import java.util.TimerTask
@@ -14,6 +14,7 @@ import java.util.TimerTask
 class ScheduleManager {
     private val databaseManager = DataBaseManager()
     private val discordManager = DiscordManager()
+    private val dateTimeManager = DateTimeManager()
 
     fun startFixedTermCheck() {
         val timer = Timer()
@@ -37,12 +38,12 @@ class ScheduleManager {
         val jda = Data.jda ?: return
         val oneDay = 1
         val week = 7
-        searchSchedule(oneDay,Data.NOTIFIED_WEEK_STATUS,jda)
-        searchSchedule(week,Data.UN_NOTIFIED_STATUS,jda)
+        searchSchedule(oneDay, Data.NOTIFIED_WEEK_STATUS,jda)
+        searchSchedule(week, Data.UN_NOTIFIED_STATUS,jda)
     }
 
     private fun searchSchedule(period:Int, status:Int, jda: JDA) {
-        val where = "WHERE ${Data.DATE_KEY} <= DATETIME('now', 'localtime', '+${period + 1} days') AND ${Data.STATUS_KEY} <= $status"
+        val where = "WHERE ${Data.DATE_KEY} <= DATETIME('now', 'localtime', '+$period days') AND ${Data.STATUS_KEY} <= $status"
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} $where;"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(Data.dbFilePath ?: return,sqlCommand)
 
@@ -50,21 +51,25 @@ class ScheduleManager {
         databaseManager.runSQLCommand(Data.dbFilePath ?: return, updateSqlCommand)
 
             for (scheduleData in scheduleDataList) {
-                val scenarioName = scheduleData.scenarioName
-                val datetime = scheduleData.datetime
-                val channelId = scheduleData.channelId
-
-                val dateStamp = LocalDateTime.parse(datetime).toEpochSecond(ZoneOffset.UTC)
-
-                val sendChannel = jda.getTextChannelById(channelId) ?: return
-
-                var message = "## [🔔セッション通知]\n「${scenarioName}」のセッションまで${period}日なことをお知らせします。\nセッション日：<t:$dateStamp:f>\n残り：<t:$dateStamp:R>"
-
-                // 1日前の場合のみ メンションをする
-                if (period == 1) message = "@everyone\n$message"
-
-                sendChannel.sendMessage(message).queue()
+                sendSchedule(scheduleData,jda,period)
         }
+    }
+
+    private fun sendSchedule(scheduleData: ScheduleData,jda: JDA,period: Int) {
+        val scenarioName = scheduleData.scenarioName
+        val datetime = scheduleData.datetime
+        val channelId = scheduleData.channelId
+
+        val dateStamp = dateTimeManager.conversionTimeStamp(datetime)
+
+        val sendChannel = jda.getTextChannelById(channelId) ?: return
+
+        var message = "## [🔔セッション通知]\n「${scenarioName}」のセッションまで${period}日なことをお知らせします。\nセッション日：<t:$dateStamp:f>\n残り：<t:$dateStamp:R>"
+
+        // 1日前の場合のみ メンションをする
+        if (period == 1) message = "@everyone\n$message"
+
+        sendChannel.sendMessage(message).queue()
     }
 
     fun make(scenarioName:String, dateData:String,channelID:String,status:Int) {
@@ -72,7 +77,7 @@ class ScheduleManager {
         databaseManager.runSQLCommand(Data.dbFilePath ?: return,sqlCommand, mutableListOf(scenarioName,dateData,channelID,status))
     }
 
-    fun oldAutoDelete() {
+    fun autoDeleteOldSchedule() {
         val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.DATE_KEY} < datetime('now', '-3 days', 'localtime');"
         databaseManager.runSQLCommand(Data.dbFilePath ?: return,sqlCommand)
     }

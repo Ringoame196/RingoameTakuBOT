@@ -1,4 +1,4 @@
-package org.example
+package org.example.datas
 
 data class ScheduleData(
     val id:Int,

@@ -13,10 +13,6 @@ class DiscordManager {
         jda.shutdown() // シャットダウン
     }
 
-    fun sendEmbed(channel: MessageChannelUnion, embed: MessageEmbed){
-        // embedを作成
-        channel.sendMessageEmbeds(embed).queue() // embedを送信
-    }
     fun makeEmbed(title: String,titleURL:String? = null, color: Color? = null, descriptor: String? = null, image: String? = null, author: User? = null, footer: String? = null, thumbnail: String? = null, timestamp: TemporalAccessor? = null, fields: MutableList<MessageEmbed.Field>? = null): MessageEmbed {
         val embed = EmbedBuilder()
         embed.setTitle(title, titleURL) // タイトル

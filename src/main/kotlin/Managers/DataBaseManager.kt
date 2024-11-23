@@ -1,9 +1,7 @@
 package org.example.Managers
 
-import net.dv8tion.jda.api.entities.MessageEmbed
-import org.example.Data
-import org.example.ScheduleData
-import java.awt.Color
+import org.example.datas.Data
+import org.example.datas.ScheduleData
 import java.sql.*
 
 class DataBaseManager {

@@ -5,94 +5,79 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageType
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.example.Data
+import org.example.Managers.DateTimeManager
+import org.example.datas.Data
 import org.example.Managers.DiscordManager
 import org.example.Managers.ScheduleManager
 import java.awt.Color
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 
-
-class CommandEvent : ListenerAdapter() {
+class SlashCommandInteraction : ListenerAdapter() {
     private val discordManager = DiscordManager()
     private val scheduleManager = ScheduleManager()
+    private val dateTimeManager = DateTimeManager()
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
+        val member = e.member ?: return
+        if (!canUseCommand(member)) return
 
         when (e.name) {
-            "test" -> testCommand(e)
-            "stop" -> stopCommand(e)
-            "reset" -> resetCommand(e)
-            "makeho" -> makeHOCommand(e)
-            "schedule" -> scheduleCommand(e)
-            "deleteschedule" -> deleteSchedule(e)
-            "listschedule" -> listSchedule(e)
-            "checkschedule" -> checkSchedule(e)
+            SlashCommandConst.TEST_COMMAND -> testCommand(e)
+            SlashCommandConst.STOP_COMMAND -> stopCommand(e)
+            SlashCommandConst.RESET_COMMAND -> resetCommand(e)
+            SlashCommandConst.MAKE_HO_COMMAND -> makeHOCommand(e)
+            SlashCommandConst.SCHEDULE_COMMAND -> scheduleCommand(e)
+            SlashCommandConst.DELETE_SCHEDULE_COMMAND -> deleteSchedule(e)
+            SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
+            SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
             else -> e.reply("未設定のコマンドです。").queue()
         }
     }
 
+    private fun canUseCommand(member: Member):Boolean {
+        val roleID = "1252623868477050993"
+        return member.isOwner || member.roles.any { it.id.equals(roleID, ignoreCase = true) }
+    }
+
     private fun testCommand(e: SlashCommandInteractionEvent) {
         val message = "テストだよ！"
-        e.reply(message).queue()
+        e.reply(message).setEphemeral(true).queue()
     }
 
     private fun stopCommand(e: SlashCommandInteractionEvent) {
-        val member = e.member // 送信者
         val jda = e.jda
         val message = "BOTの電源をオフにするよ！"
 
-        if (member?.isOwner == true) { // 鯖の所有者のみ実行可能にする
-            e.reply(message).queue()
-            discordManager.shutdown(jda)
-        }
+        e.reply(message).setEphemeral(true).queue()
+        discordManager.shutdown(jda)
     }
 
     private fun resetCommand(e: SlashCommandInteractionEvent) {
-        val member = e.member // 送信者
         val messageCountToLoad = 80 // 取得するメッセージ数
         val textChannel = e.channel // テキストチャンネル
-        if (member?.hasPermission(Permission.MESSAGE_MANAGE) == true) {
-            // コルーチンを使用して非同期処理を実行
-            CoroutineScope(Dispatchers.Default).launch {
-                val messages = textChannel.history.retrievePast(messageCountToLoad).complete() // 指定数のメッセージを取得
-                var deleteCount = 0 // メッセージを削除した回数
-                var clearReactionCount = 0 // リアクションをクリアした回数
+        // コルーチンを使用して非同期処理を実行
+        CoroutineScope(Dispatchers.Default).launch {
+            val messages = textChannel.history.retrievePast(messageCountToLoad).complete() // 指定数のメッセージを取得
 
-                val startMessage = "チャンネルリセット開始します"
-                e.reply(startMessage).queue()
+            val startMessage = "${messages.size}のメッセージをリセットします"
+            e.reply(startMessage).setEphemeral(true).queue()
 
-                for (message in messages) {
-                    // ここでメッセージの内容を表示または処理
-                    if (!message.isPinned && (message.type == MessageType.DEFAULT || message.type == MessageType.INLINE_REPLY || message.type == MessageType.SLASH_COMMAND)) {
-                        message.delete().queue()
-                        delay(1000L) // 1秒遅延
-                        deleteCount++
-                    } else if (message.reactions.size > 0) {
-                        message.clearReactions().queue() // リアクションリセット
-                        clearReactionCount++
-                    }
-                }
-                sendEndMessage(textChannel, deleteCount, clearReactionCount) // 終了メッセージを送信
-            }
+            resetMessage(messages) // メッセージをリセット
         }
     }
 
-    private fun sendEndMessage(textChannel: MessageChannelUnion, deleteCount:Int, clearReactionCount:Int) {
-        val result = mutableListOf(
-            MessageEmbed.Field("メッセージ削除数","${deleteCount}個",false),
-            MessageEmbed.Field("リアクション削除数","${clearReactionCount}個",false)
-        )
-
-        val embed = discordManager.makeEmbed(title = "[リセット]", descriptor =  "「${textChannel.name}」チャンネルのリセット", color = Color.red,fields = result)
-        discordManager.sendEmbed(textChannel,embed)
+    private suspend fun resetMessage(messages: MutableList<Message>) {
+        for (message in messages) {
+            if (!message.isPinned && (message.type == MessageType.DEFAULT || message.type == MessageType.INLINE_REPLY || message.type == MessageType.SLASH_COMMAND)) message.delete().queue()
+            else if (message.reactions.size > 0) message.clearReactions().queue() // リアクションリセット
+            delay(1000L) // 1秒遅延
+        }
     }
 
     private fun makeHOCommand(e: SlashCommandInteractionEvent) {
@@ -126,7 +111,7 @@ class CommandEvent : ListenerAdapter() {
         }
 
         val message = "HOチャンネル作成完了しました"
-        e.reply(message).queue()
+        e.reply(message).setEphemeral(true).queue()
     }
 
     private fun scheduleCommand(e: SlashCommandInteractionEvent) {
@@ -135,15 +120,15 @@ class CommandEvent : ListenerAdapter() {
         val channel = e.getOption("channel")?.asChannel ?: return
         val scenarioName = e.getOption("scenarioname")?.asString ?: return
         val channelID = channel.id
-        val dateData = "${dayString}T${timeString}"
+        val dateData = "$dayString $timeString"
 
         // 日にち 時間が正しい形式か チェックする
-        if (!isValidDateTime(dateData)) {
+        if (!dateTimeManager.isValidDateTime(dateData)) {
             val message = "日にち 時間の表記方法が間違っています"
-            e.reply(message).queue()
+            e.reply(message).setEphemeral(true).queue()
             return
         }
-        val status = if (isWithinOneWeek(dateData)) {
+        val status = if (dateTimeManager.isWithinOneWeek(dateData)) {
             Data.NOTIFIED_WEEK_STATUS
         } else {
             Data.UN_NOTIFIED_STATUS
@@ -158,33 +143,7 @@ class CommandEvent : ListenerAdapter() {
             MessageEmbed.Field("通知チャンネル","<#${channelID}>",false)
         )
         val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
-        e.replyEmbeds(embed).queue()
-    }
-
-    private fun isValidDateTime(dateTime: String): Boolean {
-        try {
-            // LocalDateTimeの標準フォーマットで解析
-            LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            return true
-        } catch (e: DateTimeParseException) {
-            return false
-        }
-    }
-
-    private fun isWithinOneWeek(dateData:String): Boolean {
-        val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
-        // 文字列からLocalDateTimeを生成
-        val dateTime = LocalDateTime.parse(dateData, dateTimeFormatter)
-
-        // 現在時刻
-        val now = LocalDateTime.now()
-
-        // 1週間後の時刻
-        val oneWeekLater = now.plusWeeks(1)
-
-        // 日時が現在から1週間以内かをチェック
-        return dateTime.isAfter(now) && dateTime.isBefore(oneWeekLater)
+        e.replyEmbeds(embed).setEphemeral(true).queue()
     }
 
     private fun deleteSchedule(e: SlashCommandInteractionEvent) {
@@ -195,7 +154,7 @@ class CommandEvent : ListenerAdapter() {
         val color = Color.RED
 
         val embed = discordManager.makeEmbed(title = title, descriptor = descriptor,color = color)
-        e.replyEmbeds(embed).queue()
+        e.replyEmbeds(embed).setEphemeral(true).queue()
     }
 
     private fun listSchedule(e:SlashCommandInteractionEvent) {
@@ -205,6 +164,6 @@ class CommandEvent : ListenerAdapter() {
     private fun checkSchedule(e:SlashCommandInteractionEvent) {
         scheduleManager.checkSchedule()
         val message = "チェックを開始します"
-        e.reply(message).queue()
+        e.reply(message).setEphemeral(true).queue()
     }
 }
