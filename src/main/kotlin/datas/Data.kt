@@ -15,4 +15,7 @@ object Data {
 
     const val UN_NOTIFIED_STATUS = 0
     const val NOTIFIED_WEEK_STATUS = 1
+
+    var dateMessageID:String? = null
+    var dateChannelID: String? = null
 }

@@ -2,6 +2,7 @@ package org.example.Managers
 
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
@@ -27,7 +28,10 @@ class DateTimeManager {
     }
 
     fun conversionTimeStamp(dateTime: String): Long {
-        return conversionDateTime(dateTime)?.toEpochSecond(ZoneOffset.UTC) ?:0
+        // 入力された日付が日本標準時(JST)だと仮定
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss") // フォーマットは必要に応じて調整
+        val zdt = ZonedDateTime.parse(dateTime, formatter.withZone(ZoneOffset.ofHours(9)))
+        return zdt.toEpochSecond()
     }
 
     private fun conversionDateTime(dateTime: String): LocalDateTime? {

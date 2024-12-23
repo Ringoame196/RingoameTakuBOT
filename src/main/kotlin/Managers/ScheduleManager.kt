@@ -7,6 +7,7 @@ import org.example.datas.Data
 import org.example.datas.ScheduleData
 import java.awt.Color
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Timer
 import java.util.TimerTask
@@ -18,7 +19,7 @@ class ScheduleManager {
 
     fun startFixedTermCheck() {
         val timer = Timer()
-        val checkTimes = mutableListOf(0,12,20)
+        val checkTimes = mutableListOf(0,12,18,20)
 
         // 次の00分までの遅延時間を計算
         val now = LocalDateTime.now()
@@ -28,11 +29,42 @@ class ScheduleManager {
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 val currentHour = LocalDateTime.now().hour
+                updateDateMessage()
                 if (!checkTimes.contains(currentHour)) return
                 checkSchedule()
                 autoDeleteOldSchedule()
             }
         }, delay, 3600 * 1000) // 3600秒(1時間)ごとに実行
+    }
+
+    fun updateDateMessage() {
+        val dateChannelID = Data.dateChannelID ?: return
+        val dateMessageID = Data.dateMessageID ?: return
+
+        val jda = Data.jda ?: return
+        val channel = jda.getTextChannelById(dateChannelID) ?: return
+
+        val newMessage = makeNewMessage()
+        channel.editMessageById(dateMessageID,newMessage).queue()
+    }
+
+    private fun makeNewMessage(): String {
+        var messageText = "# [りんご飴卓 スケジュール]"
+        val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} ORDER BY date_time ASC;"
+        val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
+
+        for (scheduleData in scheduleDataList) {
+            val scenarioName = scheduleData.scenarioName
+            val datetime = scheduleData.datetime
+            val channel = scheduleData.channelId
+            val dateStamp = dateTimeManager.conversionTimeStamp(datetime)
+            messageText = "$messageText\n## :watch:[シナリオ名] $scenarioName\n[開催チャンネル] <#$channel>\n[日程] <t:$dateStamp:f>\n[残り時間] <t:$dateStamp:R>"
+        }
+        val now: LocalDateTime = LocalDateTime.now()
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val formattedDateTime: String = now.format(formatter)
+        messageText = "$messageText\n\n[最終更新] $formattedDateTime"
+        return messageText
     }
 
     fun checkSchedule() {
@@ -89,7 +121,6 @@ class ScheduleManager {
     }
 
     fun sendAllSchedule(e: SlashCommandInteractionEvent) {
-        val channel = e.channel
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME}"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
 

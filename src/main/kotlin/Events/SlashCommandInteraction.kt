@@ -164,6 +164,8 @@ class SlashCommandInteraction : ListenerAdapter() {
 
     private fun checkSchedule(e:SlashCommandInteractionEvent) {
         scheduleManager.checkSchedule()
+        scheduleManager.updateDateMessage()
+        scheduleManager.autoDeleteOldSchedule()
         val message = "チェックを開始します"
         e.reply(message).setEphemeral(true).queue()
     }
@@ -173,6 +175,6 @@ class SlashCommandInteraction : ListenerAdapter() {
         val channel = e.channel
         val sendMessage = e.getOption("text")?.asString ?: return
         e.reply(message).setEphemeral(true).queue()
-        channel.sendMessage(sendMessage)
+        channel.sendMessage(sendMessage).queue()
     }
 }

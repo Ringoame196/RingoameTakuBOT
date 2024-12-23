@@ -17,6 +17,8 @@ import java.io.File
 fun main() {
     val tokenFile = File("./token.txt")
     val activityFile = File("./activity.txt")
+    val dateChannelIDFile = File("./date_channel_id.txt")
+    val dateMessageIDFile = File("./date_message_id.txt")
     val isStart = tokenFile.exists() && activityFile.exists()
 
     if (!tokenFile.exists()) {
@@ -29,6 +31,16 @@ fun main() {
         println("activityファイルを生成しました")
     }
 
+    if (!dateChannelIDFile.exists()) {
+        dateChannelIDFile.writeText("")
+        println("dateChannelIDファイルを生成しました")
+    }
+
+    if (!dateMessageIDFile.exists()) {
+        dateMessageIDFile.writeText("")
+        println("dateMessageIDファイルを生成しました")
+    }
+
     if (!isStart) return
 
     // db作成
@@ -36,6 +48,8 @@ fun main() {
 
     val token = tokenFile.readText() // tokenを取得
     val activity = activityFile.readText() // アクティビティに表示する
+    Data.dateMessageID = dateMessageIDFile.readText() // dateMessageID
+    Data.dateChannelID = dateChannelIDFile.readText() // dateChannelID
     val jda = setUpDiscordJDA(token, activity)
 
     val scheduleManager = ScheduleManager()
