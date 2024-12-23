@@ -9,4 +9,5 @@ object SlashCommandConst {
     const val DELETE_SCHEDULE_COMMAND = "deleteschedule"
     const val LIST_SCHEDULE_COMMAND = "listschedule"
     const val CHECK_SCHEDULE_COMMAND = "checkschedule"
+    const val SEND_COMMAND = "send"
 }

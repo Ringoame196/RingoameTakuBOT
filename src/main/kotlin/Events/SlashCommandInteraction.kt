@@ -36,6 +36,7 @@ class SlashCommandInteraction : ListenerAdapter() {
             SlashCommandConst.DELETE_SCHEDULE_COMMAND -> deleteSchedule(e)
             SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
             SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
+            SlashCommandConst.SEND_COMMAND -> send(e)
             else -> e.reply("未設定のコマンドです。").queue()
         }
     }
@@ -165,5 +166,13 @@ class SlashCommandInteraction : ListenerAdapter() {
         scheduleManager.checkSchedule()
         val message = "チェックを開始します"
         e.reply(message).setEphemeral(true).queue()
+    }
+
+    private fun send(e:SlashCommandInteractionEvent) {
+        val message = "メッセージを送信します"
+        val channel = e.channel
+        val sendMessage = e.getOption("text")?.asString ?: return
+        e.reply(message).setEphemeral(true).queue()
+        channel.sendMessage(sendMessage)
     }
 }
