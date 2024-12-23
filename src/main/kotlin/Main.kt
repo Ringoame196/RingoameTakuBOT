@@ -48,14 +48,14 @@ fun main() {
 }
 
 private fun makeDataBase() {
-    val dataBaseManager = DataBaseManager()
     val currentPath = File(".").canonicalPath
     val dbFilePath = "${currentPath}\\data.db"
+    val dataBaseManager = DataBaseManager(currentPath)
     Data.dbFilePath = dbFilePath
     if (!File(dbFilePath).exists()) {
         val scheduleCommand =
             "CREATE TABLE IF NOT EXISTS ${Data.TABLE_NAME} (${Data.ID_KEY} INTEGER PRIMARY KEY AUTOINCREMENT, ${Data.SCENARIO_NAME_KEY} TEXT NOT NULL, ${Data.DATE_KEY} DATETIME NOT NULL, ${Data.CHANNEL_ID_KEY} TEXT NOT NULL, ${Data.STATUS_KEY} INTEGER NOT NULL);"
-        dataBaseManager.runSQLCommand(dbFilePath, scheduleCommand)
+        dataBaseManager.executeUpdate(scheduleCommand)
     }
 }
 
@@ -76,7 +76,8 @@ private fun setUpDiscordJDA(token:String,activity:String):JDA {
         Commands.slash(SlashCommandConst.SCHEDULE_COMMAND, "スケジュール設定").addOption(OptionType.STRING,"scenarioname","シナリオ名",true).addOption(OptionType.STRING,"day","予定日", true).addOption(OptionType.STRING,"time","時間",true).addOption(OptionType.CHANNEL,"channel","通知チャンネル",true),
         Commands.slash(SlashCommandConst.DELETE_SCHEDULE_COMMAND,"スケジュールを削除する").addOption(OptionType.INTEGER,"id","セッション管理id",true),
         Commands.slash(SlashCommandConst.LIST_SCHEDULE_COMMAND,"スケジュールを確認する"),
-        Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック")
+        Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
+        Commands.slash(SlashCommandConst.SEND_COMMAND,"メッセージ送信").addOption(OptionType.STRING,"text","メッセージ",true)
 
     ).queue()
     return jda

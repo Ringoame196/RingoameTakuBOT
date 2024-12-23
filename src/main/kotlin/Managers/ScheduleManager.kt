@@ -12,7 +12,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 class ScheduleManager {
-    private val databaseManager = DataBaseManager()
+    private val databaseManager = DataBaseManager(Data.dbFilePath)
     private val discordManager = DiscordManager()
     private val dateTimeManager = DateTimeManager()
 
@@ -30,6 +30,7 @@ class ScheduleManager {
                 val currentHour = LocalDateTime.now().hour
                 if (!checkTimes.contains(currentHour)) return
                 checkSchedule()
+                autoDeleteOldSchedule()
             }
         }, delay, 3600 * 1000) // 3600秒(1時間)ごとに実行
     }
@@ -45,13 +46,13 @@ class ScheduleManager {
     private fun searchSchedule(period:Int, status:Int, jda: JDA) {
         val where = "WHERE ${Data.DATE_KEY} <= DATETIME('now', 'localtime', '+$period days') AND ${Data.STATUS_KEY} <= $status"
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} $where;"
-        val scheduleDataList = databaseManager.acquisitionScheduleValue(Data.dbFilePath ?: return,sqlCommand)
+        val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
 
         val updateSqlCommand = "UPDATE ${Data.TABLE_NAME} SET ${Data.STATUS_KEY} = ${status + 1} $where;"
-        databaseManager.runSQLCommand(Data.dbFilePath ?: return, updateSqlCommand)
+        databaseManager.executeUpdate(updateSqlCommand)
 
-            for (scheduleData in scheduleDataList) {
-                sendSchedule(scheduleData,jda,period)
+        for (scheduleData in scheduleDataList) {
+            sendSchedule(scheduleData,jda,period)
         }
     }
 
@@ -74,30 +75,31 @@ class ScheduleManager {
 
     fun make(scenarioName:String, dateData:String,channelID:String,status:Int) {
         val sqlCommand = "INSERT INTO ${Data.TABLE_NAME} (${Data.SCENARIO_NAME_KEY},${Data.DATE_KEY},${Data.CHANNEL_ID_KEY},${Data.STATUS_KEY}) VALUES (?,?,?,?)"
-        databaseManager.runSQLCommand(Data.dbFilePath ?: return,sqlCommand, mutableListOf(scenarioName,dateData,channelID,status))
+        databaseManager.executeUpdate(sqlCommand, mutableListOf(scenarioName,dateData,channelID,status))
     }
 
     fun autoDeleteOldSchedule() {
         val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.DATE_KEY} < datetime('now', '-3 days', 'localtime');"
-        databaseManager.runSQLCommand(Data.dbFilePath ?: return,sqlCommand)
+        databaseManager.executeUpdate(sqlCommand)
     }
 
     fun delete(id:Int) {
         val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.ID_KEY} = ?;"
-        databaseManager.runSQLCommand(Data.dbFilePath ?: return,sqlCommand, mutableListOf(id))
+        databaseManager.executeUpdate(sqlCommand, mutableListOf(id))
     }
 
     fun sendAllSchedule(e: SlashCommandInteractionEvent) {
         val channel = e.channel
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME}"
-        val scheduleDataList = databaseManager.acquisitionScheduleValue(Data.dbFilePath ?: return,sqlCommand)
+        val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
 
-        if (scheduleDataList.size == 0) {
+        if (scheduleDataList.isEmpty()) {
             val message = "現在設定されているスケジュールはありません"
             e.reply(message).queue()
             return
         }
         val replyMessage = "${scheduleDataList.size}個のスケジュールが見つかりました"
+        val scheduleEmbeds = mutableListOf<MessageEmbed>()
 
         for (scheduleData in scheduleDataList) {
             val id = scheduleData.id
@@ -117,8 +119,8 @@ class ScheduleManager {
             )
 
             val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
-            channel.sendMessageEmbeds(embed).queue()
+            scheduleEmbeds.add(embed)
         }
-        e.reply(replyMessage).queue()
+        e.reply(replyMessage).addEmbeds(scheduleEmbeds).queue()
     }
 }

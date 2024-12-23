@@ -4,106 +4,112 @@ import org.example.datas.Data
 import org.example.datas.ScheduleData
 import java.sql.*
 
-class DataBaseManager {
-    fun runSQLCommand(dbFilePath: String, command: String, parameters: List<Any>? = null) {
-        val statement: Statement?
-        var connection: Connection? = null
-        val preparedStatement: PreparedStatement?
+class DataBaseManager(private val dbFilePath: String?) {
+    /**
+     * SQLコマンドを実行する
+     * @param command 実行するSQL文
+     * @param parameters パラメータリスト
+     */
+    fun executeUpdate(command: String, parameters: List<Any>? = null) {
         try {
-            statement = connection(dbFilePath) // 接続
-            connection = statement?.connection
-            preparedStatement = connection?.prepareStatement(command)
-
-            // パラメータをバインド
-            parameters?.forEachIndexed { index, param ->
-                preparedStatement?.setObject(index + 1, param)
+            connection.use { conn ->
+                conn.prepareStatement(command).use { preparedStatement ->
+                    parameters?.bindParameters(preparedStatement)
+                    preparedStatement.executeUpdate()
+                }
             }
-
-            preparedStatement?.executeUpdate()
         } catch (e: SQLException) {
-            // エラーハンドリング
             println("SQL Error: ${e.message}")
-        } finally {
-            disconnect(connection) // 切断
+            throw e
         }
     }
 
-    fun acquisitionStringValue(dbFilePath: String, sql: String, parameters: List<Any>, label: String): String? {
-        var value: String? = null
-        val statement: Statement?
-        var connection: Connection? = null
-        val preparedStatement: PreparedStatement?
-        try {
-            statement = connection(dbFilePath) // 接続
-            connection = statement?.connection
-            preparedStatement = connection?.prepareStatement(sql)
-
-            // パラメータをバインド
-            parameters.forEachIndexed { index, param ->
-                preparedStatement?.setObject(index + 1, param)
-            }
-
-            val resultSet = preparedStatement?.executeQuery()
-            value = if (resultSet != null && resultSet.next()) {
-                resultSet.getString(label)
-            } else {
-                null // 結果が存在しない場合はnullを返す
-            }
-        } catch (e: SQLException) {
-            // エラーハンドリング
-            println("SQL Error: ${e.message}")
-        } finally {
-            disconnect(connection) // 切断
-        }
-        return value
+    /**
+     * 単一の値を取得する
+     * @param sql 実行するSQL文
+     * @param parameters パラメータリスト
+     * @param label カラム名
+     * @return 結果の値
+     */
+    fun acquisitionValue(sql: String, parameters: List<Any>, label: String): Any? {
+        return acquisitionValues(sql, parameters, mutableListOf(label)).getValue(label)
     }
 
-    fun acquisitionScheduleValue(dbFilePath: String, sql: String, parameters: List<Any>? = null): MutableList<ScheduleData> {
-        val statement: Statement?
-        var connection: Connection? = null
+    /**
+     * 複数の行を取得する
+     * @param sql 実行するSQL文
+     * @param parameters パラメータリスト
+     * @param mapper 結果セットの行をオブジェクトにマッピングする関数
+     * @return 結果リスト
+     */
+    fun acquisitionValues(
+        sql: String,
+        parameters: List<Any>,
+        keys: List<String>
+    ): Map<String, Any?> {
+        try {
+            val values = mutableMapOf<String, Any?>()
+            connection.use { conn ->
+                conn.prepareStatement(sql).use { preparedStatement ->
+                    parameters.bindParameters(preparedStatement)
+                    preparedStatement.executeQuery().use { resultSet ->
+                        if (resultSet.next()) {
+                            for (key in keys) {
+                                values[key] = try {
+                                    resultSet.getString(key)
+                                } catch (e: SQLException) {
+                                    null
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return values
+        } catch (e: SQLException) {
+            println("SQL Error: ${e.message}")
+            throw e
+            return mapOf()
+        }
+    }
+
+    fun acquisitionScheduleValue(sql: String): MutableList<ScheduleData> {
         val scheduleDataList = mutableListOf<ScheduleData>()
-        val preparedStatement: PreparedStatement?
+
         try {
-            statement = connection(dbFilePath) // 接続
-            connection = statement?.connection
-            preparedStatement = connection?.prepareStatement(sql)
+            connection.use { conn ->
+                conn.prepareStatement(sql).use { preparedStatement ->
 
-            // パラメータをバインド
-            parameters?.forEachIndexed { index, param ->
-                preparedStatement?.setObject(index + 1, param)
+                    preparedStatement?.executeQuery()?.use { resultSet ->
+                        while (resultSet.next()) {
+                            val id = resultSet.getInt(Data.ID_KEY)
+                            val scenarioName = resultSet.getString(Data.SCENARIO_NAME_KEY)
+                            val datetime = resultSet.getString(Data.DATE_KEY)
+                            val channelId = resultSet.getString(Data.CHANNEL_ID_KEY)
+                            val status = resultSet.getInt(Data.STATUS_KEY)
+
+                            val scheduleData = ScheduleData(id, scenarioName, datetime, channelId, status)
+                            scheduleDataList.add(scheduleData)
+                        }
+                    }
+                }
             }
-
-            val resultSet = preparedStatement?.executeQuery() ?: return mutableListOf()
-
-            while (resultSet.next()) {
-                val id = resultSet.getInt(Data.ID_KEY)
-                val scenarioName = resultSet.getString(Data.SCENARIO_NAME_KEY)
-                val datetime = resultSet.getString(Data.DATE_KEY)
-                val channelId = resultSet.getString(Data.CHANNEL_ID_KEY)
-                val status = resultSet.getInt(Data.STATUS_KEY)
-
-                val scheduleData = ScheduleData(id,scenarioName, datetime, channelId, status)
-                scheduleDataList.add(scheduleData)
-            }
-
         } catch (e: SQLException) {
             // エラーハンドリング
             println("SQL Error: ${e.message}")
-        } finally {
-            disconnect(connection) // 切断
         }
+
         return scheduleDataList
     }
 
-    private fun connection(dbFilePath: String): Statement? {
-        val connection = DriverManager.getConnection("jdbc:sqlite:$dbFilePath")
-        // SQLステートメントの作成
-        val statement = connection.createStatement()
-        statement.queryTimeout = 30 // タイムアウトの設定
-        return statement
-    }
+    // SQLiteコネクションの取得
+    private val connection: Connection
+        get() = DriverManager.getConnection("jdbc:sqlite:$dbFilePath")
 
-    private fun disconnect(connection: Connection?) {
-        connection?.close()
+    // パラメータをPreparedStatementにバインドする拡張関数
+    private fun List<Any>.bindParameters(preparedStatement: PreparedStatement) {
+        this.forEachIndexed { index, param ->
+            preparedStatement.setObject(index + 1, param)
+        }
     }
 }
