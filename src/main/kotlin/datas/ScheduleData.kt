@@ -6,4 +6,4 @@ data class ScheduleData(
     val datetime:String,
     val channelId:String,
     val status:Int
-    )
+)
