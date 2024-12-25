@@ -19,46 +19,58 @@ fun main() {
     val activityFile = File("./activity.txt")
     val dateChannelIDFile = File("./date_channel_id.txt")
     val dateMessageIDFile = File("./date_message_id.txt")
-    val isStart = tokenFile.exists() && activityFile.exists()
+    var isStart = tokenFile.exists() && activityFile.exists()
+    val fileList = mutableListOf(
+        tokenFile,
+        activityFile,
+        dateChannelIDFile,
+        dateMessageIDFile
+    )
 
-    if (!tokenFile.exists()) {
-        tokenFile.writeText("")
-        println("tokenファイルを生成しました")
+    makeFile(fileList) // 必要ファイルを生成
+    val fileData = acquisitionFileData(fileList)
+
+    if (!isStart) {
+        println("必要ファイルが足りないため 起動を停止します")
+        return
     }
-
-    if (!activityFile.exists()) {
-        activityFile.writeText("")
-        println("activityファイルを生成しました")
-    }
-
-    if (!dateChannelIDFile.exists()) {
-        dateChannelIDFile.writeText("")
-        println("dateChannelIDファイルを生成しました")
-    }
-
-    if (!dateMessageIDFile.exists()) {
-        dateMessageIDFile.writeText("")
-        println("dateMessageIDファイルを生成しました")
-    }
-
-    if (!isStart) return
 
     // db作成
     makeDataBase()
 
-    val token = tokenFile.readText() // tokenを取得
-    val activity = activityFile.readText() // アクティビティに表示する
-    Data.dateMessageID = dateMessageIDFile.readText() // dateMessageID
-    Data.dateChannelID = dateChannelIDFile.readText() // dateChannelID
+    val token = fileData["token"] ?:return // tokenを取得
+    val activity = fileData["activity"] ?:return // アクティビティに表示する
+    Data.dateMessageID = fileData["date_message_id"] ?:return // dateMessageID
+    Data.dateChannelID = fileData["date_channel_id"] ?:return // dateChannelID
     val jda = setUpDiscordJDA(token, activity)
-
-    val scheduleManager = ScheduleManager()
-    scheduleManager.autoDeleteOldSchedule()
 
     jda.awaitReady()
     Data.jda = jda
 
+    val scheduleManager = ScheduleManager()
+    scheduleManager.autoDeleteOldSchedule()
+
     scheduleManager.startFixedTermCheck() // 定期スケジュールチェック開始
+}
+
+private fun makeFile(fileList: List<File>) {
+    for (file in fileList) {
+        if (!file.exists()) {
+            file.writeText("")
+            println("[生成]${file.name}")
+        }
+    }
+}
+
+private fun acquisitionFileData(fileList: List<File>): MutableMap<String, String?> {
+    val data = mutableMapOf<String, String?>()
+
+    for (file in fileList) {
+        val key = file.name.replace(".txt","")
+        val text = file.readText()
+        data[key] = text
+    }
+    return data
 }
 
 private fun makeDataBase() {
