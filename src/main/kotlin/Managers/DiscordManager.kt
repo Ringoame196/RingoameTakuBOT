@@ -4,13 +4,14 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import java.awt.Color
 import java.time.temporal.TemporalAccessor
+import kotlin.system.exitProcess
 
 class DiscordManager {
     fun shutdown(jda: JDA) {
         jda.shutdown() // シャットダウン
+        exitProcess(0)
     }
 
     fun makeEmbed(title: String,titleURL:String? = null, color: Color? = null, descriptor: String? = null, image: String? = null, author: User? = null, footer: String? = null, thumbnail: String? = null, timestamp: TemporalAccessor? = null, fields: MutableList<MessageEmbed.Field>? = null): MessageEmbed {
