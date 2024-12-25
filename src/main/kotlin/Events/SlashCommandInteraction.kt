@@ -55,8 +55,12 @@ class SlashCommandInteraction : ListenerAdapter() {
         val jda = e.jda
         val message = "BOTの電源をオフにするよ！"
 
-        e.reply(message).setEphemeral(true).queue()
-        discordManager.shutdown(jda)
+        e.reply(message).setEphemeral(true).queue({
+            // メッセージが正常に送信された後にシャットダウンを実行
+            discordManager.shutdown(jda)
+        }, {
+            it.printStackTrace()
+        })
     }
 
     private fun resetCommand(e: SlashCommandInteractionEvent) {
@@ -76,7 +80,7 @@ class SlashCommandInteraction : ListenerAdapter() {
     private suspend fun resetMessage(messages: MutableList<Message>) {
         for (message in messages) {
             if (!message.isPinned && (message.type == MessageType.DEFAULT || message.type == MessageType.INLINE_REPLY || message.type == MessageType.SLASH_COMMAND)) message.delete().queue()
-            else if (message.reactions.size > 0) message.clearReactions().queue() // リアクションリセット
+            else if (message.reactions.isNotEmpty()) message.clearReactions().queue() // リアクションリセット
             delay(1000L) // 1秒遅延
         }
     }
