@@ -30,9 +30,9 @@ class ScheduleManager {
             override fun run() {
                 val currentHour = LocalDateTime.now().hour
                 updateDateMessage()
-                if (!checkTimes.contains(currentHour)) return
-                checkSchedule()
+                if (!checkTimes.contains(currentHour)) return // 指定した時間以外は動作を停止
                 autoDeleteOldSchedule()
+                checkSchedule()
             }
         }, delay, 3600 * 1000) // 3600秒(1時間)ごとに実行
     }
@@ -43,28 +43,47 @@ class ScheduleManager {
 
         val jda = Data.jda ?: return
         val channel = jda.getTextChannelById(dateChannelID) ?: return
-
         val newMessage = makeNewMessage()
-        channel.editMessageById(dateMessageID,newMessage).queue()
+
+        try {
+            channel.editMessageById(dateMessageID, newMessage).queue()
+        } catch (e:Exception) {
+            println("[エラー] スケジュールの更新に失敗しました ${e.message}")
+        }
     }
 
     private fun makeNewMessage(): String {
         var messageText = "# [りんご飴卓 スケジュール]"
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} ORDER BY date_time ASC;"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
+        val now: LocalDateTime = LocalDateTime.now()
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val formattedDateTime: String = now.format(formatter)
 
         for (scheduleData in scheduleDataList) {
             val scenarioName = scheduleData.scenarioName
             val datetime = scheduleData.datetime
             val channel = scheduleData.channelId
-            val dateStamp = dateTimeManager.conversionTimeStamp(datetime)
-            messageText = "$messageText\n## :watch:[シナリオ名] $scenarioName\n[開催チャンネル] <#$channel>\n[日程] <t:$dateStamp:f>\n[残り時間] <t:$dateStamp:R>"
+            val remainingTime = calculateRemainingTime(datetime)
+            messageText = "$messageText\n## :watch:[シナリオ名] $scenarioName\n[開催チャンネル] <#$channel>\n[日程] $datetime\n[残り時間] $remainingTime"
         }
-        val now: LocalDateTime = LocalDateTime.now()
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val formattedDateTime: String = now.format(formatter)
         messageText = "$messageText\n\n[最終更新] $formattedDateTime"
         return messageText
+    }
+
+    private fun calculateRemainingTime(time: String): String {
+        val now = LocalDateTime.now()
+        val targetDate = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        // 日数差を計算
+        val daysDifference = ChronoUnit.DAYS.between(now.toLocalDate(), targetDate.toLocalDate())
+        // 時間差を計算
+        val hoursDifference = ChronoUnit.HOURS.between(now, targetDate)
+
+        return if (daysDifference >= 1) {
+            "${daysDifference}日"
+        } else {
+            "${hoursDifference}時間"
+        }
     }
 
     fun checkSchedule() {
@@ -111,7 +130,7 @@ class ScheduleManager {
     }
 
     fun autoDeleteOldSchedule() {
-        val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.DATE_KEY} < datetime('now', '-3 days', 'localtime');"
+        val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.DATE_KEY} < datetime('now', '-1 days', 'localtime');"
         databaseManager.executeUpdate(sqlCommand)
     }
 
