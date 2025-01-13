@@ -1,11 +1,12 @@
-package org.example.Managers
+package com.github.ringoame196.Managers
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import org.example.datas.Data
-import org.example.datas.ScheduleData
+import com.github.ringoame196.datas.Data
+import com.github.ringoame196.datas.ScheduleData
 import java.awt.Color
+import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -15,23 +16,22 @@ import java.util.TimerTask
 class ScheduleManager {
     private val databaseManager = DataBaseManager(Data.dbFilePath)
     private val discordManager = DiscordManager()
-    private val dateTimeManager = DateTimeManager()
 
     fun startFixedTermCheck() {
         val timer = Timer()
-        val checkTimes = mutableListOf(0,12,18,20)
+        val checkTimes = mutableListOf(0,12)
 
         // 次の00分までの遅延時間を計算
         val now = LocalDateTime.now()
         val nextHour = now.plusHours(1).truncatedTo(ChronoUnit.HOURS)
-        val delay = java.time.Duration.between(now, nextHour).toMillis()
+        val delay = Duration.between(now, nextHour).toMillis()
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 val currentHour = LocalDateTime.now().hour
+                autoDeleteOldSchedule()
                 updateDateMessage()
                 if (!checkTimes.contains(currentHour)) return // 指定した時間以外は動作を停止
-                autoDeleteOldSchedule()
                 checkSchedule()
             }
         }, delay, 3600 * 1000) // 3600秒(1時間)ごとに実行
@@ -52,22 +52,30 @@ class ScheduleManager {
         }
     }
 
+    private fun convertingNowTime(): String {
+        val now: LocalDateTime = LocalDateTime.now()
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        return now.format(formatter)
+    }
+
     private fun makeNewMessage(): String {
         var messageText = "# [りんご飴卓 スケジュール]"
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} ORDER BY date_time ASC;"
         val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
-        val now: LocalDateTime = LocalDateTime.now()
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        val formattedDateTime: String = now.format(formatter)
+        val nowTime = convertingNowTime()
 
         for (scheduleData in scheduleDataList) {
             val scenarioName = scheduleData.scenarioName
             val datetime = scheduleData.datetime
             val channel = scheduleData.channelId
             val remainingTime = calculateRemainingTime(datetime)
-            messageText = "$messageText\n## :watch:[シナリオ名] $scenarioName\n[開催チャンネル] <#$channel>\n[日程] $datetime\n[残り時間] $remainingTime"
+            messageText = "$messageText\n" +
+                    "## :watch:[シナリオ名] $scenarioName\n" +
+                    "[開催チャンネル] <#$channel>\n" +
+                    "[日程] $datetime\n" +
+                    "[残り時間] 約$remainingTime"
         }
-        messageText = "$messageText\n\n[最終更新] $formattedDateTime"
+        messageText = "$messageText\n\n[最終更新] $nowTime"
         return messageText
     }
 
@@ -107,16 +115,16 @@ class ScheduleManager {
         }
     }
 
-    private fun sendSchedule(scheduleData: ScheduleData,jda: JDA,period: Int) {
+    private fun sendSchedule(scheduleData: ScheduleData, jda: JDA, period: Int) {
         val scenarioName = scheduleData.scenarioName
         val datetime = scheduleData.datetime
         val channelId = scheduleData.channelId
 
-        val dateStamp = dateTimeManager.conversionTimeStamp(datetime)
-
         val sendChannel = jda.getTextChannelById(channelId) ?: return
 
-        var message = "## [🔔セッション通知]\n「${scenarioName}」のセッションまで${period}日なことをお知らせします。\nセッション日：<t:$dateStamp:f>\n残り：<t:$dateStamp:R>"
+        var message = "## [🔔セッション通知]\n" +
+                "「${scenarioName}」のセッションまで約${period}日なことをお知らせします。\n" +
+                "セッション日：$datetime"
 
         // 1日前の場合のみ メンションをする
         if (period == 1) message = "@everyone\n$message"

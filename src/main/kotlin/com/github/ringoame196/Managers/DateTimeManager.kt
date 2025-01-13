@@ -1,4 +1,4 @@
-package org.example.Managers
+package com.github.ringoame196.Managers
 
 import java.time.LocalDateTime
 import java.time.ZoneOffset

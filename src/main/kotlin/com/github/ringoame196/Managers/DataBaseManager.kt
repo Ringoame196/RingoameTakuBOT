@@ -1,7 +1,7 @@
-package org.example.Managers
+package com.github.ringoame196.Managers
 
-import org.example.datas.Data
-import org.example.datas.ScheduleData
+import com.github.ringoame196.datas.Data
+import com.github.ringoame196.datas.ScheduleData
 import java.sql.*
 
 class DataBaseManager(private val dbFilePath: String?) {

@@ -1,4 +1,4 @@
-package org.example.datas
+package com.github.ringoame196.datas
 
 data class ScheduleData(
     val id:Int,

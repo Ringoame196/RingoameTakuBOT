@@ -1,4 +1,4 @@
-package org.example.Managers
+package com.github.ringoame196.Managers
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA

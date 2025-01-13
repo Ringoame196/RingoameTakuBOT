@@ -1,4 +1,4 @@
-package org.example
+package com.github.ringoame196
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -6,12 +6,12 @@ import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.requests.GatewayIntent
-import org.example.Events.SlashCommandInteraction
-import org.example.Events.MessageReceivedEvent
-import org.example.Events.SlashCommandConst
-import org.example.Managers.DataBaseManager
-import org.example.Managers.ScheduleManager
-import org.example.datas.Data
+import com.github.ringoame196.Events.MessageReceivedEvent
+import com.github.ringoame196.Events.SlashCommandConst
+import com.github.ringoame196.Events.SlashCommandInteraction
+import com.github.ringoame196.Managers.DataBaseManager
+import com.github.ringoame196.Managers.ScheduleManager
+import com.github.ringoame196.datas.Data
 import java.io.File
 
 fun main() {
@@ -91,7 +91,7 @@ private fun setUpDiscordJDA(token:String,activity:String):JDA {
     jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
 
     // イベントリスナーを追加
-    val jda = jdaBuilder.addEventListeners(SlashCommandInteraction(),MessageReceivedEvent()).build() // JDAオブジェクトを取得
+    val jda = jdaBuilder.addEventListeners(SlashCommandInteraction(), MessageReceivedEvent()).build() // JDAオブジェクトを取得
 
     // スラッシュコマンドの登録
     jda.updateCommands().addCommands(

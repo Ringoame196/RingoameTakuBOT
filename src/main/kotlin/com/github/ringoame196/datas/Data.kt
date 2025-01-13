@@ -1,4 +1,4 @@
-package org.example.datas
+package com.github.ringoame196.datas
 
 import net.dv8tion.jda.api.JDA
 
@@ -18,4 +18,6 @@ object Data {
 
     var dateMessageID:String? = null
     var dateChannelID: String? = null
+
+    const val SESSION_VOICE_CHANNEL_URL = "https://discord.com/channels/1230147693834407996/1230148660881391779"
 }
