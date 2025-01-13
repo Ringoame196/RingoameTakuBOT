@@ -126,8 +126,10 @@ class ScheduleManager {
                 "「${scenarioName}」のセッションまで約${period}日なことをお知らせします。\n" +
                 "セッション日：$datetime"
 
-        // 1日前の場合のみ メンションをする
-        if (period == 1) message = "@everyone\n$message"
+        // 1日前の場合のみ メンションとVCのURLを貼り付ける
+        if (period == 1) message = "@everyone\n" +
+                "$message\n" +
+                Data.SESSION_VOICE_CHANNEL_URL
 
         sendChannel.sendMessage(message).queue()
     }
