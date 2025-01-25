@@ -13,6 +13,7 @@ object Data {
     const val CHANNEL_ID_KEY = "channel_id"
     const val STATUS_KEY = "status"
 
+    val CHECK_TIME: List<Int> = listOf(0,12)
     const val UN_NOTIFIED_STATUS = 0
     const val NOTIFIED_WEEK_STATUS = 1
 
