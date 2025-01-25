@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.JDA
 object Data {
     var jda:JDA? = null
 
-    var dbFilePath:String? = null
+    lateinit var dbFilePath: String
     const val TABLE_NAME = "schedule"
     const val ID_KEY = "id"
     const val SCENARIO_NAME_KEY = "scenario_name"

@@ -14,7 +14,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 class ScheduleManager {
-    private val databaseManager = DataBaseManager(Data.dbFilePath)
+    private val databaseManager = DataBaseManager()
     private val discordManager = DiscordManager()
 
     fun startFixedTermCheck() {

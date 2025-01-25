@@ -2,14 +2,24 @@ package com.github.ringoame196.Managers
 
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScheduleData
+import java.io.File
 import java.sql.*
 
-class DataBaseManager(private val dbFilePath: String?) {
+class DataBaseManager() {
     /**
      * SQLコマンドを実行する
      * @param command 実行するSQL文
      * @param parameters パラメータリスト
      */
+
+    fun makeDataBase() {
+        if (!File(Data.dbFilePath).exists()) {
+            val scheduleCommand =
+                "CREATE TABLE IF NOT EXISTS ${Data.TABLE_NAME} (${Data.ID_KEY} INTEGER PRIMARY KEY AUTOINCREMENT, ${Data.SCENARIO_NAME_KEY} TEXT NOT NULL, ${Data.DATE_KEY} DATETIME NOT NULL, ${Data.CHANNEL_ID_KEY} TEXT NOT NULL, ${Data.STATUS_KEY} INTEGER NOT NULL);"
+            executeUpdate(scheduleCommand)
+        }
+    }
+
     fun executeUpdate(command: String, parameters: List<Any>? = null) {
         try {
             connection.use { conn ->
@@ -104,7 +114,7 @@ class DataBaseManager(private val dbFilePath: String?) {
 
     // SQLiteコネクションの取得
     private val connection: Connection
-        get() = DriverManager.getConnection("jdbc:sqlite:$dbFilePath")
+        get() = DriverManager.getConnection("jdbc:sqlite:${Data.dbFilePath}")
 
     // パラメータをPreparedStatementにバインドする拡張関数
     private fun List<Any>.bindParameters(preparedStatement: PreparedStatement) {
