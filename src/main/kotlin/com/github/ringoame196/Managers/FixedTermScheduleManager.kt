@@ -8,9 +8,10 @@ import java.time.temporal.ChronoUnit
 import java.util.Timer
 import java.util.TimerTask
 
-class FixedTermSchedule {
+class FixedTermScheduleManager {
     private val scheduleManager = ScheduleManager()
-    private val notificationNotification = NotificationNotification()
+    private val notificationNotificationManager = NotificationNotificationManager()
+    private val dateTimeManager = DateTimeManager()
 
     fun startFixedTermCheck() {
         val timer = Timer()
@@ -51,7 +52,7 @@ class FixedTermSchedule {
         var messageText = "# [りんご飴卓 スケジュール]"
         val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME} ORDER BY date_time ASC;"
         val scheduleDataList = scheduleManager.acquisitionScheduleValue(sqlCommand)
-        val nowTime = scheduleManager.convertingNowTime()
+        val nowTime = dateTimeManager.convertingNowTime()
 
         if (scheduleDataList.isEmpty()) {
             messageText = "${messageText}\n現在登録されているスケジュールはありません"
@@ -89,7 +90,7 @@ class FixedTermSchedule {
         scheduleManager.update(updateSqlCommand)
 
         for (scheduleData in scheduleDataList) {
-            notificationNotification.sendSchedule(scheduleData,jda,period)
+            notificationNotificationManager.sendSchedule(scheduleData,jda,period)
         }
     }
 }

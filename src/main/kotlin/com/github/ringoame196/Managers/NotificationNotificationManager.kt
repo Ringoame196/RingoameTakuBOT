@@ -4,7 +4,7 @@ import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScheduleData
 import net.dv8tion.jda.api.JDA
 
-class NotificationNotification {
+class NotificationNotificationManager {
     fun sendSchedule(scheduleData: ScheduleData, jda: JDA, period: Int) {
         val scenarioName = scheduleData.scenarioName
         val datetime = scheduleData.datetime
