@@ -32,4 +32,33 @@ class DateTimeManager {
             null
         }
     }
+
+    fun convertingNowTime(): String {
+        val now: LocalDateTime = LocalDateTime.now()
+        return now.format(formatter)
+    }
+
+    fun convertingDateTime(inputDate: String): String {
+        val normalizedDate = normalizeDate(inputDate)
+        val parsedDate = LocalDateTime.parse(normalizedDate, formatter)
+        return parsedDate.format(formatter)
+    }
+
+    fun normalizeDate(input: String): String {
+        return try {
+            input.replace(Regex("(\\d{4})-(\\d{1,2})-(\\d{1,2}) (\\d{1,2}):(\\d{1,2}):(\\d{1,2})")) {
+                val (year, month, day, hour, minute, second) = it.destructured
+                "%04d-%02d-%02d %02d:%02d:%02d".format(
+                    year.toInt(),
+                    month.toInt(),
+                    day.toInt(),
+                    hour.toInt(),
+                    minute.toInt(),
+                    second.toInt()
+                )
+            }
+        } catch (e:Exception) {
+            input
+        }
+    }
 }

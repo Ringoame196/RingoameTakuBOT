@@ -1,23 +1,13 @@
 package com.github.ringoame196.Managers
 
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScheduleData
-import java.awt.Color
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 class ScheduleManager {
     private val databaseManager = DataBaseManager()
-    private val discordManager = DiscordManager()
-
-    fun convertingNowTime(): String {
-        val now: LocalDateTime = LocalDateTime.now()
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        return now.format(formatter)
-    }
 
     fun acquisitionScheduleValue(sql: String):MutableList<ScheduleData> {
         return databaseManager.acquisitionScheduleValue(sql)
@@ -55,40 +45,5 @@ class ScheduleManager {
     fun delete(id:Int) {
         val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.ID_KEY} = ?;"
         databaseManager.executeUpdate(sqlCommand, mutableListOf(id))
-    }
-
-    fun sendAllSchedule(e: SlashCommandInteractionEvent) {
-        val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME}"
-        val scheduleDataList = databaseManager.acquisitionScheduleValue(sqlCommand)
-
-        if (scheduleDataList.isEmpty()) {
-            val message = "現在設定されているスケジュールはありません"
-            e.reply(message).queue()
-            return
-        }
-        val replyMessage = "${scheduleDataList.size}個のスケジュールが見つかりました"
-        val scheduleEmbeds = mutableListOf<MessageEmbed>()
-
-        for (scheduleData in scheduleDataList) {
-            val id = scheduleData.id
-            val scenarioName = scheduleData.scenarioName
-            val datetime = scheduleData.datetime
-            val channelId = scheduleData.channelId
-            val status = scheduleData.status
-
-            val title = "スケジュール確認"
-            val color = Color.YELLOW
-            val fields = mutableListOf(
-                MessageEmbed.Field("ID","$id",true),
-                MessageEmbed.Field("シナリオ名",scenarioName,true),
-                MessageEmbed.Field("日程",datetime,true),
-                MessageEmbed.Field("送信チャンネル","<#${channelId}>",true),
-                MessageEmbed.Field("ステータス","$status",true)
-            )
-
-            val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
-            scheduleEmbeds.add(embed)
-        }
-        e.reply(replyMessage).addEmbeds(scheduleEmbeds).queue()
     }
 }

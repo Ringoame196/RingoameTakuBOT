@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import com.github.ringoame196.Managers.DateTimeManager
 import com.github.ringoame196.Managers.DiscordManager
+import com.github.ringoame196.Managers.FixedTermScheduleManager
 import com.github.ringoame196.Managers.ScheduleManager
 import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -22,6 +23,7 @@ class SlashCommandInteraction : ListenerAdapter() {
     private val discordManager = DiscordManager()
     private val scheduleManager = ScheduleManager()
     private val dateTimeManager = DateTimeManager()
+    private val fixedTermScheduleManager = FixedTermScheduleManager()
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
         val member = e.member ?: return
@@ -37,12 +39,11 @@ class SlashCommandInteraction : ListenerAdapter() {
             SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
             SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
             SlashCommandConst.SEND_COMMAND -> send(e)
-            else -> e.reply("未設定のコマンドです。").queue()
         }
     }
 
     private fun canUseCommand(member: Member):Boolean {
-        val roleID = "1252623868477050993"
+        val roleID = Data.ADMIN_ROLE_ID
         return member.isOwner || member.roles.any { it.id.equals(roleID, ignoreCase = true) }
     }
 
@@ -125,7 +126,7 @@ class SlashCommandInteraction : ListenerAdapter() {
         val channel = e.getOption("channel")?.asChannel ?: return
         val scenarioName = e.getOption("scenarioname")?.asString ?: return
         val channelID = channel.id
-        val dateData = "$dayString $timeString"
+        val dateData = dateTimeManager.convertingDateTime("$dayString $timeString")
 
         // 日にち 時間が正しい形式か チェックする
         if (!dateTimeManager.isValidDateTime(dateData)) {
@@ -163,12 +164,43 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun listSchedule(e:SlashCommandInteractionEvent) {
-        scheduleManager.sendAllSchedule(e)
+        val sqlCommand = "SELECT * FROM ${Data.TABLE_NAME}"
+        val scheduleDataList = scheduleManager.acquisitionScheduleValue(sqlCommand)
+
+        if (scheduleDataList.isEmpty()) {
+            val message = "現在設定されているスケジュールはありません"
+            e.reply(message).queue()
+            return
+        }
+        val replyMessage = "${scheduleDataList.size}個のスケジュールが見つかりました"
+        val scheduleEmbeds = mutableListOf<MessageEmbed>()
+
+        for (scheduleData in scheduleDataList) {
+            val id = scheduleData.id
+            val scenarioName = scheduleData.scenarioName
+            val datetime = scheduleData.datetime
+            val channelId = scheduleData.channelId
+            val status = scheduleData.status
+
+            val title = "スケジュール確認"
+            val color = Color.YELLOW
+            val fields = mutableListOf(
+                MessageEmbed.Field("ID","$id",true),
+                MessageEmbed.Field("シナリオ名",scenarioName,true),
+                MessageEmbed.Field("日程",datetime,true),
+                MessageEmbed.Field("送信チャンネル","<#${channelId}>",true),
+                MessageEmbed.Field("ステータス","$status",true)
+            )
+
+            val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
+            scheduleEmbeds.add(embed)
+        }
+        e.reply(replyMessage).addEmbeds(scheduleEmbeds).queue()
     }
 
     private fun checkSchedule(e:SlashCommandInteractionEvent) {
-        scheduleManager.checkSchedule()
-        scheduleManager.updateDateMessage()
+        fixedTermScheduleManager.checkSchedule()
+        fixedTermScheduleManager.updateDateMessage()
         scheduleManager.autoDeleteOldSchedule()
         val message = "チェックを開始します"
         e.reply(message).setEphemeral(true).queue()
