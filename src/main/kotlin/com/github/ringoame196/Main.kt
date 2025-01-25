@@ -2,7 +2,7 @@ package com.github.ringoame196
 
 import com.github.ringoame196.Managers.DataBaseManager
 import com.github.ringoame196.Managers.DiscordManager
-import com.github.ringoame196.Managers.FixedTermSchedule
+import com.github.ringoame196.Managers.FixedTermScheduleManager
 import com.github.ringoame196.Managers.ScheduleManager
 import com.github.ringoame196.datas.Data
 import java.io.File
@@ -46,9 +46,9 @@ fun main() {
     Data.jda = jda
 
     val scheduleManager = ScheduleManager()
-    val fixedTermSchedule = FixedTermSchedule()
+    val fixedTermScheduleManager = FixedTermScheduleManager()
     scheduleManager.autoDeleteOldSchedule() // 古いschedule削除
-    fixedTermSchedule.startFixedTermCheck() // 定期スケジュールチェック開始
+    fixedTermScheduleManager.startFixedTermCheck() // 定期スケジュールチェック開始
 }
 
 private fun makeFile(fileList: List<File>) {
