@@ -1,6 +1,6 @@
 package com.github.ringoame196.Managers
 
-import com.github.ringoame196.Config
+import com.github.ringoame196.datas.Config
 import com.github.ringoame196.datas.Data
 import java.io.File
 import java.io.InputStream
@@ -32,7 +32,7 @@ class ConfigManager {
 
     fun make() {
         val currentPath = File(".").canonicalPath
-        val targetFile = File("$currentPath/config.yml")
+        val targetFile = File("$currentPath/$configPath")
         val resourceStream: InputStream? = object {}.javaClass.getResourceAsStream("/config.yml")
         if (resourceStream == null) {
             println("リソースファイルが見つかりません: config.yml")

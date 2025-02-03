@@ -1,4 +1,4 @@
-package com.github.ringoame196
+package com.github.ringoame196.datas
 
 data class Config(
     val token:String?,

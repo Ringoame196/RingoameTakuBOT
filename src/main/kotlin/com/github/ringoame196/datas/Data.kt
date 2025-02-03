@@ -1,6 +1,5 @@
 package com.github.ringoame196.datas
 
-import com.github.ringoame196.Config
 import net.dv8tion.jda.api.JDA
 
 object Data {
