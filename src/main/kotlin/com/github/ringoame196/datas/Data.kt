@@ -17,6 +17,10 @@ object Data {
     const val UN_NOTIFIED_STATUS = 0
     const val NOTIFIED_WEEK_STATUS = 1
 
+    // config
+    lateinit var config: Config
+
+    // Discord関係
     const val ADMIN_ROLE_ID = "1252623868477050993"
     var dateMessageID:String? = null
     var dateChannelID: String? = null

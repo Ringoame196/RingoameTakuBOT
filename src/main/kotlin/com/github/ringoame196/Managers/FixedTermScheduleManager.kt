@@ -34,8 +34,8 @@ class FixedTermScheduleManager {
     }
 
     fun updateDateMessage() {
-        val dateChannelID = Data.dateChannelID ?: return
-        val dateMessageID = Data.dateMessageID ?: return
+        val dateChannelID = Data.config.dateChannelID ?: return
+        val dateMessageID = Data.config.dateMessageID ?: return
 
         val jda = Data.jda ?: return
         val channel = jda.getTextChannelById(dateChannelID) ?: return

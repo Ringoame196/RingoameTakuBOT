@@ -3,6 +3,7 @@ package com.github.ringoame196.Managers
 import com.github.ringoame196.Events.MessageReceivedEvent
 import com.github.ringoame196.Events.SlashCommandConst
 import com.github.ringoame196.Events.SlashCommandInteraction
+import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -49,11 +50,14 @@ class DiscordManager {
         return embed.build()
     }
 
-    fun setUpDiscordJDA(token:String,activity:String):JDA {
+    fun setUpDiscordJDA():JDA {
+        val token = Data.config.token
+        val activity = Data.config.activity
+
         val jdaBuilder =
             JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT) // bot起動
 
-        jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
+        if (activity != null) jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
 
         // イベントリスナーを追加
         val jda =
@@ -77,7 +81,6 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, "text", "メッセージ", true)
-
         ).queue()
         return jda
     }
