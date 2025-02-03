@@ -29,16 +29,22 @@ class SlashCommandInteraction : ListenerAdapter() {
         val member = e.member ?: return
         if (!canUseCommand(member)) return
 
-        when (e.name) {
-            SlashCommandConst.TEST_COMMAND -> testCommand(e)
-            SlashCommandConst.STOP_COMMAND -> stopCommand(e)
-            SlashCommandConst.RESET_COMMAND -> resetCommand(e)
-            SlashCommandConst.MAKE_HO_COMMAND -> makeHOCommand(e)
-            SlashCommandConst.SCHEDULE_COMMAND -> scheduleCommand(e)
-            SlashCommandConst.DELETE_SCHEDULE_COMMAND -> deleteSchedule(e)
-            SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
-            SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
-            SlashCommandConst.SEND_COMMAND -> send(e)
+        try {
+            when (e.name) {
+                SlashCommandConst.TEST_COMMAND -> testCommand(e)
+                SlashCommandConst.STOP_COMMAND -> stopCommand(e)
+                SlashCommandConst.RESET_COMMAND -> resetCommand(e)
+                SlashCommandConst.MAKE_HO_COMMAND -> makeHOCommand(e)
+                SlashCommandConst.SCHEDULE_COMMAND -> scheduleCommand(e)
+                SlashCommandConst.DELETE_SCHEDULE_COMMAND -> deleteSchedule(e)
+                SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
+                SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
+                SlashCommandConst.SEND_COMMAND -> send(e)
+            }
+        } catch (error:Exception) {
+            val message = "エラーが発生しました"
+            e.reply(message).setEphemeral(true).queue()
+            println(error.message)
         }
     }
 
