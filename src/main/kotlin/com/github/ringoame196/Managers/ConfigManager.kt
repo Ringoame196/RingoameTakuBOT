@@ -12,7 +12,7 @@ class ConfigManager {
     private val configPath = "config.yml"
 
     fun exists(): Boolean {
-        return !File("./$configPath").exists()
+        return File("./$configPath").exists()
     }
 
     fun canStart(): Boolean {
