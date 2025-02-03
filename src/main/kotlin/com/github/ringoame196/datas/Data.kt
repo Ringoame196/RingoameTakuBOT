@@ -1,10 +1,10 @@
 package com.github.ringoame196.datas
 
+import com.github.ringoame196.Config
 import net.dv8tion.jda.api.JDA
 
 object Data {
-    var jda:JDA? = null
-
+    // データベース
     lateinit var dbFilePath: String
     const val TABLE_NAME = "schedule"
     const val ID_KEY = "id"
@@ -21,9 +21,7 @@ object Data {
     lateinit var config: Config
 
     // Discord関係
+    var jda:JDA? = null
     const val ADMIN_ROLE_ID = "1252623868477050993"
-    var dateMessageID:String? = null
-    var dateChannelID: String? = null
-
     const val SESSION_VOICE_CHANNEL_URL = "https://discord.com/channels/1230147693834407996/1230148660881391779"
 }
