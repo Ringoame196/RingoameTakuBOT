@@ -57,6 +57,11 @@ class DiscordManager {
         val jdaBuilder =
             JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT) // bot起動
 
+        jdaBuilder.enableIntents(
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+            GatewayIntent.SCHEDULED_EVENTS
+        )
         if (activity != null) jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
 
         // イベントリスナーを追加
@@ -82,7 +87,7 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.LIST_SCHEDULE_COMMAND, "スケジュールを確認する"),
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
-                .addOption(OptionType.STRING, "text", "メッセージ", true)
+                .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true)
         ).queue()
         return jda
     }
