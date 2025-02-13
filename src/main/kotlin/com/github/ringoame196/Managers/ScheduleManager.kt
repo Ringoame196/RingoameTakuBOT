@@ -46,4 +46,12 @@ class ScheduleManager {
         val sqlCommand = "DELETE FROM ${Data.TABLE_NAME} WHERE ${Data.ID_KEY} = ?;"
         databaseManager.executeUpdate(sqlCommand, mutableListOf(id))
     }
+
+    fun changeStatus(statusNumber: Int):String {
+        return when(statusNumber) {
+            Data.UN_NOTIFIED_STATUS -> "1週間前通知前"
+            Data.NOTIFIED_WEEK_STATUS -> "1日前通知前"
+            else -> "通知なし"
+        }
+    }
 }

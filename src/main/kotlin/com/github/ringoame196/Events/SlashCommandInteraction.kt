@@ -141,19 +141,17 @@ class SlashCommandInteraction : ListenerAdapter() {
             e.reply(message).setEphemeral(true).queue()
             return
         }
-        val status = if (dateTimeManager.isWithinOneWeek(dateData)) {
-            Data.NOTIFIED_WEEK_STATUS
-        } else {
-            Data.UN_NOTIFIED_STATUS
-        } // 0:未設定 1:一週間前通知済み 2:一日前通知済み
-        scheduleManager.make(scenarioName, dateData, channelID, status)
+        if (statusNumber == Data.UN_NOTIFIED_STATUS && dateTimeManager.isWithinOneWeek(dateData)) statusNumber = Data.NOTIFIED_WEEK_STATUS
+        scheduleManager.make(scenarioName, dateData, channelID, statusNumber)
 
+        val status = scheduleManager.changeStatus(statusNumber)
         val title = "日程登録"
         val color = Color.BLUE
         val fields = mutableListOf(
             MessageEmbed.Field("シナリオ名",scenarioName,false),
             MessageEmbed.Field("日程",dateData,false),
-            MessageEmbed.Field("通知チャンネル","<#${channelID}>",false)
+            MessageEmbed.Field("通知チャンネル","<#${channelID}>",false),
+            MessageEmbed.Field("ステータス",status,false)
         )
         val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
         e.replyEmbeds(embed).setEphemeral(true).queue()
