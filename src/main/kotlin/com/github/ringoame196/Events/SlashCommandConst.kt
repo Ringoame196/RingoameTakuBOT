@@ -10,4 +10,13 @@ object SlashCommandConst {
     const val LIST_SCHEDULE_COMMAND = "listschedule"
     const val CHECK_SCHEDULE_COMMAND = "checkschedule"
     const val SEND_COMMAND = "send"
+
+    const val SCENARIO_NAME_OPTION = "scenarioname"
+    const val HO_NUMBER_OPTION = "honumber"
+    const val DAY_OPTION = "day"
+    const val TIME_OPTION = "time"
+    const val CHANNEL_OPTION = "channel"
+    const val ID_OPTION = "id"
+    const val TEXT_OPTION = "text"
+    const val STATUS_OPTION = "status"
 }

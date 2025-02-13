@@ -94,8 +94,8 @@ class SlashCommandInteraction : ListenerAdapter() {
 
     private fun makeHOCommand(e: SlashCommandInteractionEvent) {
         val guild = e.guild
-        val scenarioName = e.getOption("scenarioname")?.asString ?:return
-        val hoNumber = e.getOption("honumber")?.asDouble?.toInt() ?:return
+        val scenarioName = e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString ?:return
+        val hoNumber = e.getOption(SlashCommandConst.HO_NUMBER_OPTION)?.asDouble?.toInt() ?:return
 
         guild?.createCategory(scenarioName)?.queue { category ->
             // カテゴリー内にテキストチャンネルを作成
@@ -127,10 +127,11 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun scheduleCommand(e: SlashCommandInteractionEvent) {
-        val dayString = e.getOption("day")?.asString ?: return
-        val timeString = e.getOption("time")?.asString ?: return
-        val channel = e.getOption("channel")?.asChannel ?: return
-        val scenarioName = e.getOption("scenarioname")?.asString ?: return
+        val dayString = e.getOption(SlashCommandConst.DAY_OPTION)?.asString ?: return
+        val timeString = e.getOption(SlashCommandConst.TIME_OPTION)?.asString ?: return
+        val channel = e.getOption(SlashCommandConst.CHANNEL_OPTION)?.asChannel ?: return
+        val scenarioName = e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString ?: return
+        var statusNumber = e.getOption(SlashCommandConst.STATUS_OPTION)?.asInt ?: return
         val channelID = channel.id
         val dateData = dateTimeManager.convertingDateTime("$dayString $timeString")
 
@@ -159,7 +160,7 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun deleteSchedule(e: SlashCommandInteractionEvent) {
-        val id = e.getOption("id")?.asInt ?: return
+        val id = e.getOption(SlashCommandConst.ID_OPTION)?.asInt ?: return
         scheduleManager.delete(id)
         val title = "スケジュール削除"
         val descriptor = "${id}のスケジュールを削除しました"
@@ -186,7 +187,8 @@ class SlashCommandInteraction : ListenerAdapter() {
             val scenarioName = scheduleData.scenarioName
             val datetime = scheduleData.datetime
             val channelId = scheduleData.channelId
-            val status = scheduleData.status
+            val statusNumber = scheduleData.status
+            val status = scheduleManager.changeStatus(statusNumber)
 
             val title = "スケジュール確認"
             val color = Color.YELLOW
@@ -195,7 +197,7 @@ class SlashCommandInteraction : ListenerAdapter() {
                 MessageEmbed.Field("シナリオ名",scenarioName,true),
                 MessageEmbed.Field("日程",datetime,true),
                 MessageEmbed.Field("送信チャンネル","<#${channelId}>",true),
-                MessageEmbed.Field("ステータス","$status",true)
+                MessageEmbed.Field("ステータス",status,true)
             )
 
             val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
@@ -215,7 +217,7 @@ class SlashCommandInteraction : ListenerAdapter() {
     private fun send(e:SlashCommandInteractionEvent) {
         val message = "メッセージを送信します"
         val channel = e.channel
-        val sendMessage = e.getOption("text")?.asString ?: return
+        val sendMessage = e.getOption(SlashCommandConst.TEXT_OPTION)?.asString ?: return
         e.reply(message).setEphemeral(true).queue()
         channel.sendMessage(sendMessage).queue()
     }
