@@ -1,8 +1,8 @@
-package com.github.ringoame196.Managers
+package com.github.ringoame196.managers
 
-import com.github.ringoame196.Events.MessageReceivedEvent
-import com.github.ringoame196.Events.SlashCommandConst
-import com.github.ringoame196.Events.SlashCommandInteraction
+import com.github.ringoame196.events.MessageReceivedEvent
+import com.github.ringoame196.events.SlashCommandConst
+import com.github.ringoame196.events.SlashCommandInteraction
 import com.github.ringoame196.datas.Data
 import kotlinx.coroutines.delay
 import net.dv8tion.jda.api.EmbedBuilder

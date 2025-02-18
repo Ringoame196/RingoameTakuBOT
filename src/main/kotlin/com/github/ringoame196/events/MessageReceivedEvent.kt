@@ -1,8 +1,8 @@
-package com.github.ringoame196.Events
+package com.github.ringoame196.events
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import com.github.ringoame196.Managers.DiscordManager
+import com.github.ringoame196.managers.DiscordManager
 import java.awt.Color
 import kotlin.random.Random
 

@@ -1,4 +1,4 @@
-package com.github.ringoame196.Managers
+package com.github.ringoame196.managers
 
 import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.JDA

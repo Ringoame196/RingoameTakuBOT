@@ -1,4 +1,4 @@
-package com.github.ringoame196.Managers
+package com.github.ringoame196.managers
 
 import com.github.ringoame196.datas.Config
 import com.github.ringoame196.datas.Data

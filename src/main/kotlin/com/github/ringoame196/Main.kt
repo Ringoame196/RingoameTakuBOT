@@ -1,10 +1,10 @@
 package com.github.ringoame196
 
-import com.github.ringoame196.Managers.ConfigManager
-import com.github.ringoame196.Managers.DataBaseManager
-import com.github.ringoame196.Managers.DiscordManager
-import com.github.ringoame196.Managers.FixedTermScheduleManager
-import com.github.ringoame196.Managers.ScheduleManager
+import com.github.ringoame196.managers.ConfigManager
+import com.github.ringoame196.managers.DataBaseManager
+import com.github.ringoame196.managers.DiscordManager
+import com.github.ringoame196.managers.FixedTermScheduleManager
+import com.github.ringoame196.managers.ScheduleManager
 import com.github.ringoame196.datas.Data
 import java.io.File
 

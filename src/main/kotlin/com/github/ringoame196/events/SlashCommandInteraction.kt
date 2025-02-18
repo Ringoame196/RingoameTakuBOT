@@ -1,4 +1,4 @@
-package com.github.ringoame196.Events
+package com.github.ringoame196.events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -6,10 +6,10 @@ import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import com.github.ringoame196.Managers.DateTimeManager
-import com.github.ringoame196.Managers.DiscordManager
-import com.github.ringoame196.Managers.FixedTermScheduleManager
-import com.github.ringoame196.Managers.ScheduleManager
+import com.github.ringoame196.managers.DateTimeManager
+import com.github.ringoame196.managers.DiscordManager
+import com.github.ringoame196.managers.FixedTermScheduleManager
+import com.github.ringoame196.managers.ScheduleManager
 import com.github.ringoame196.datas.CommandOptions
 import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.hooks.ListenerAdapter
