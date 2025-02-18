@@ -2,18 +2,15 @@ package com.github.ringoame196.Events
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import com.github.ringoame196.Managers.DateTimeManager
 import com.github.ringoame196.Managers.DiscordManager
 import com.github.ringoame196.Managers.FixedTermScheduleManager
 import com.github.ringoame196.Managers.ScheduleManager
+import com.github.ringoame196.datas.CommandOptions
 import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.awt.Color
@@ -27,7 +24,11 @@ class SlashCommandInteraction : ListenerAdapter() {
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
         val member = e.member ?: return
-        if (!canUseCommand(member)) return
+        if (!canUseCommand(member)) {
+            val message = "あなたは、権限を持っていません"
+            e.reply(message).queue()
+            return
+        }
 
         try {
             when (e.name) {
@@ -40,6 +41,7 @@ class SlashCommandInteraction : ListenerAdapter() {
                 SlashCommandConst.LIST_SCHEDULE_COMMAND -> listSchedule(e)
                 SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
                 SlashCommandConst.SEND_COMMAND -> send(e)
+                SlashCommandConst.EDIT_SCHEDULE_COMMAND -> editSchedule(e)
             }
         } catch (error:Exception) {
             val message = "エラーが発生しました"
@@ -51,6 +53,19 @@ class SlashCommandInteraction : ListenerAdapter() {
     private fun canUseCommand(member: Member):Boolean {
         val roleID = Data.ADMIN_ROLE_ID
         return member.isOwner || member.roles.any { it.id.equals(roleID, ignoreCase = true) }
+    }
+
+    private fun acquisitionCommandOptions(e:SlashCommandInteractionEvent): CommandOptions {
+        return CommandOptions(
+            e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString,
+            e.getOption(SlashCommandConst.HO_NUMBER_OPTION)?.asDouble?.toInt(),
+            e.getOption(SlashCommandConst.DAY_OPTION)?.asString,
+            e.getOption(SlashCommandConst.TIME_OPTION)?.asString,
+            e.getOption(SlashCommandConst.CHANNEL_OPTION)?.asChannel,
+            e.getOption(SlashCommandConst.ID_OPTION)?.asInt,
+            e.getOption(SlashCommandConst.TEXT_OPTION)?.asString,
+            e.getOption(SlashCommandConst.STATUS_OPTION)?.asInt
+        )
     }
 
     private fun testCommand(e: SlashCommandInteractionEvent) {
@@ -80,27 +95,15 @@ class SlashCommandInteraction : ListenerAdapter() {
             val startMessage = "${messages.size}のメッセージをリセットします"
             e.reply(startMessage).setEphemeral(true).queue()
 
-            resetMessage(messages) // メッセージをリセット
-        }
-    }
-
-    private suspend fun resetMessage(messages: MutableList<Message>) {
-        for (message in messages) {
-            if (!message.isPinned && (message.type == MessageType.DEFAULT || message.type == MessageType.INLINE_REPLY || message.type == MessageType.SLASH_COMMAND)) message.delete().queue()
-            else if (message.reactions.isNotEmpty()) message.clearReactions().queue() // リアクションリセット
-            delay(1000L) // 1秒遅延
+            discordManager.deleteMessages(messages) // メッセージをリセット
         }
     }
 
     private fun makeHOCommand(e: SlashCommandInteractionEvent) {
-        val guild = e.guild
-        val scenarioName = e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString ?:return
-        val hoNumber = e.getOption(SlashCommandConst.HO_NUMBER_OPTION)?.asDouble?.toInt() ?:return
-
-        guild?.createCategory(scenarioName)?.queue { category ->
-            // カテゴリー内にテキストチャンネルを作成
-            for (i in 1..hoNumber) {
-                val hoName = "HO${i}-$scenarioName"
+        val guild = e.guild ?: return
+        val commandOptions = acquisitionCommandOptions(e)
+        val scenarioName = commandOptions.scenarioName ?: return
+        val hoNumber = commandOptions.hoNumber ?:return
 
         discordManager.makeHOChannel(guild,scenarioName,hoNumber)
 
@@ -109,11 +112,12 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun scheduleCommand(e: SlashCommandInteractionEvent) {
-        val dayString = e.getOption(SlashCommandConst.DAY_OPTION)?.asString ?: return
-        val timeString = e.getOption(SlashCommandConst.TIME_OPTION)?.asString ?: return
-        val channel = e.getOption(SlashCommandConst.CHANNEL_OPTION)?.asChannel ?: return
-        val scenarioName = e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString ?: return
-        var statusNumber = e.getOption(SlashCommandConst.STATUS_OPTION)?.asInt ?: return
+        val commandOptions = acquisitionCommandOptions(e)
+        val dayString = commandOptions.day ?: return
+        val timeString = commandOptions.time ?: return
+        val channel = commandOptions.channel ?: return
+        val scenarioName = commandOptions.scenarioName ?: return
+        var statusNumber = commandOptions.status ?: return
         val channelID = channel.id
         val dateData = dateTimeManager.convertingDateTime("$dayString $timeString")
 
@@ -140,7 +144,8 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun deleteSchedule(e: SlashCommandInteractionEvent) {
-        val id = e.getOption(SlashCommandConst.ID_OPTION)?.asInt ?: return
+        val commandOptions = acquisitionCommandOptions(e)
+        val id = commandOptions.id ?: return
         scheduleManager.delete(id)
         val title = "スケジュール削除"
         val descriptor = "${id}のスケジュールを削除しました"
@@ -178,10 +183,37 @@ class SlashCommandInteraction : ListenerAdapter() {
     }
 
     private fun send(e:SlashCommandInteractionEvent) {
+        val commandOptions = acquisitionCommandOptions(e)
         val message = "メッセージを送信します"
         val channel = e.channel
-        val sendMessage = e.getOption(SlashCommandConst.TEXT_OPTION)?.asString ?: return
+        val sendMessage = commandOptions.text ?: return
         e.reply(message).setEphemeral(true).queue()
         channel.sendMessage(sendMessage).queue()
+    }
+
+    private fun editSchedule(e: SlashCommandInteractionEvent) {
+        val commandOptions = acquisitionCommandOptions(e)
+        val id = commandOptions.id ?: return
+        val dayString = commandOptions.day
+        val timeString = commandOptions.time
+        val channel = commandOptions.channel
+        val scenarioName = commandOptions.scenarioName
+        var statusNumber = commandOptions.status
+
+        if (dayString != null && timeString != null) {
+            val dateData = dateTimeManager.convertingDateTime("$dayString $timeString")
+            // 日にち 時間が正しい形式か チェックする
+            if (dateTimeManager.isValidDateTime(dateData)) scheduleManager.update(id,Data.DATE_KEY,dateData)
+        }
+
+        if (channel != null) scheduleManager.update(id,Data.CHANNEL_ID_KEY,channel.id)
+
+        if (scenarioName != null) scheduleManager.update(id,Data.SCENARIO_NAME_KEY,scenarioName)
+
+        if (statusNumber != null) scheduleManager.update(id,Data.STATUS_KEY,statusNumber)
+
+        val schedule = scheduleManager.acquisitionIDScheduleValue(id)
+        val embed = scheduleManager.makeScheduleEmbed(schedule[0])
+        e.replyEmbeds(embed).setEphemeral(true).queue()
     }
 }
