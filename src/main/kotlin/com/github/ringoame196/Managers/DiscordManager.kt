@@ -4,11 +4,16 @@ import com.github.ringoame196.Events.MessageReceivedEvent
 import com.github.ringoame196.Events.SlashCommandConst
 import com.github.ringoame196.Events.SlashCommandInteraction
 import com.github.ringoame196.datas.Data
+import kotlinx.coroutines.delay
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -87,8 +92,50 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.LIST_SCHEDULE_COMMAND, "スケジュールを確認する"),
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
-                .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true)
-        ).queue()
+                .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
+            Commands.slash(SlashCommandConst.EDIT_SCHEDULE_COMMAND,"スケジュールの予定を編集")
+                .addOption(OptionType.INTEGER, SlashCommandConst.ID_OPTION,"セッション管理id",true)
+                .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ名", false)
+                .addOption(OptionType.STRING, SlashCommandConst.DAY_OPTION, "予定日", false)
+                .addOption(OptionType.STRING, SlashCommandConst.TIME_OPTION, "時間", false)
+                .addOption(OptionType.CHANNEL, SlashCommandConst.CHANNEL_OPTION, "通知チャンネル", false)
+                .addOption(OptionType.INTEGER, SlashCommandConst.STATUS_OPTION,"ステータス",false),
+            ).queue()
         return jda
+    }
+
+    suspend fun deleteMessages(messages: MutableList<Message>) {
+        for (message in messages) {
+            if (!message.isPinned && (message.type == MessageType.DEFAULT || message.type == MessageType.INLINE_REPLY || message.type == MessageType.SLASH_COMMAND)) message.delete().queue()
+            else if (message.reactions.isNotEmpty()) message.clearReactions().queue() // リアクションリセット
+            delay(1000L) // 1秒遅延
+        }
+    }
+
+    fun makeHOChannel(guild: Guild,scenarioName: String,hoNumber: Int) {
+        guild.createCategory(scenarioName).queue { category ->
+            // カテゴリー内にテキストチャンネルを作成
+            for (i in 1..hoNumber) {
+                val hoName = "HO${i}-$scenarioName"
+
+                // ロール作成
+                guild.createRole()
+                    .setName(hoName)
+                    .queue { role ->
+                        // チャンネルを作成
+                        category.createTextChannel(hoName).queue { textChannel ->
+                            // @everyoneに対して、チャンネルが見えないようにする
+                            textChannel.upsertPermissionOverride(guild.publicRole)
+                                .setDenied(Permission.VIEW_CHANNEL)
+                                .queue()
+
+                            // 特定のロールに対して、チャンネルが見えるようにする
+                            textChannel.upsertPermissionOverride(role)
+                                .setAllowed(Permission.VIEW_CHANNEL)
+                                .queue()
+                        }
+                    }
+            }
+        }
     }
 }

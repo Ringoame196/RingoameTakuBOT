@@ -102,25 +102,7 @@ class SlashCommandInteraction : ListenerAdapter() {
             for (i in 1..hoNumber) {
                 val hoName = "HO${i}-$scenarioName"
 
-                // ロール作成
-                guild.createRole()
-                    .setName(hoName)
-                    .queue { role ->
-                        // チャンネルを作成
-                        category.createTextChannel(hoName).queue { textChannel ->
-                            // @everyoneに対して、チャンネルが見えないようにする
-                            textChannel.upsertPermissionOverride(guild.publicRole)
-                                .setDenied(Permission.VIEW_CHANNEL)
-                                .queue()
-
-                            // 特定のロールに対して、チャンネルが見えるようにする
-                            textChannel.upsertPermissionOverride(role)
-                                .setAllowed(Permission.VIEW_CHANNEL)
-                                .queue()
-                        }
-                    }
-            }
-        }
+        discordManager.makeHOChannel(guild,scenarioName,hoNumber)
 
         val message = "HOチャンネル作成完了しました"
         e.reply(message).setEphemeral(true).queue()
@@ -181,24 +163,7 @@ class SlashCommandInteraction : ListenerAdapter() {
         val scheduleEmbeds = mutableListOf<MessageEmbed>()
 
         for (scheduleData in scheduleDataList) {
-            val id = scheduleData.id
-            val scenarioName = scheduleData.scenarioName
-            val datetime = scheduleData.datetime
-            val channelId = scheduleData.channelId
-            val statusNumber = scheduleData.status
-            val status = scheduleManager.changeStatus(statusNumber)
-
-            val title = "スケジュール確認"
-            val color = Color.YELLOW
-            val fields = mutableListOf(
-                MessageEmbed.Field("ID","$id",true),
-                MessageEmbed.Field("シナリオ名",scenarioName,true),
-                MessageEmbed.Field("日程",datetime,true),
-                MessageEmbed.Field("送信チャンネル","<#${channelId}>",true),
-                MessageEmbed.Field("ステータス",status,true)
-            )
-
-            val embed = discordManager.makeEmbed(title = title,color = color, fields = fields)
+            val embed = scheduleManager.makeScheduleEmbed(scheduleData)
             scheduleEmbeds.add(embed)
         }
         e.reply(replyMessage).addEmbeds(scheduleEmbeds).queue()
