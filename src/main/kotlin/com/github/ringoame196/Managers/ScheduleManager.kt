@@ -2,6 +2,8 @@ package com.github.ringoame196.Managers
 
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScheduleData
+import net.dv8tion.jda.api.entities.MessageEmbed
+import java.awt.Color
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -10,6 +12,11 @@ class ScheduleManager {
     private val databaseManager = DataBaseManager()
 
     fun acquisitionScheduleValue(sql: String):MutableList<ScheduleData> {
+        return databaseManager.acquisitionScheduleValue(sql)
+    }
+
+    fun acquisitionIDScheduleValue(id: Int):MutableList<ScheduleData> {
+        val sql = "SELECT * FROM ${Data.TABLE_NAME} WHERE id = $id;"
         return databaseManager.acquisitionScheduleValue(sql)
     }
 
@@ -28,6 +35,27 @@ class ScheduleManager {
         }
     }
 
+    fun makeScheduleEmbed(scheduleData: ScheduleData): MessageEmbed {
+        val discordManager = DiscordManager()
+        val id = scheduleData.id
+        val scenarioName = scheduleData.scenarioName
+        val datetime = scheduleData.datetime
+        val channelId = scheduleData.channelId
+        val statusNumber = scheduleData.status
+        val status = changeStatus(statusNumber)
+
+        val title = "スケジュール"
+        val color = Color.YELLOW
+        val fields = mutableListOf(
+            MessageEmbed.Field("ID","$id",true),
+            MessageEmbed.Field("シナリオ名",scenarioName,true),
+            MessageEmbed.Field("日程",datetime,true),
+            MessageEmbed.Field("送信チャンネル","<#${channelId}>",true),
+            MessageEmbed.Field("ステータス",status,true)
+        )
+        return discordManager.makeEmbed(title = title,color = color, fields = fields)
+    }
+
     fun make(scenarioName:String, dateData:String,channelID:String,status:Int) {
         val sqlCommand = "INSERT INTO ${Data.TABLE_NAME} (${Data.SCENARIO_NAME_KEY},${Data.DATE_KEY},${Data.CHANNEL_ID_KEY},${Data.STATUS_KEY}) VALUES (?,?,?,?)"
         databaseManager.executeUpdate(sqlCommand, mutableListOf(scenarioName,dateData,channelID,status))
@@ -35,6 +63,11 @@ class ScheduleManager {
 
     fun update(updateSqlCommand: String) {
         databaseManager.executeUpdate(updateSqlCommand)
+    }
+
+    fun update(id: Int,key: String,value: Any) {
+        val command = "UPDATE ${Data.TABLE_NAME} SET $key = ? WHERE ${Data.ID_KEY} = ?;"
+        databaseManager.executeUpdate(command,mutableListOf(value,id))
     }
 
     fun autoDeleteOldSchedule() {
