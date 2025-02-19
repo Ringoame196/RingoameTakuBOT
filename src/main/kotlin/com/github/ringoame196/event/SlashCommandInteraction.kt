@@ -8,11 +8,13 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import com.github.ringoame196.manager.DiscordManager
 import com.github.ringoame196.datas.CommandOptions
 import com.github.ringoame196.datas.Data
+import com.github.ringoame196.manager.NotificationManager
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 
 class SlashCommandInteraction : ListenerAdapter() {
     private val discordManager = DiscordManager()
+    private val notificationManager = NotificationManager()
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
         val member = e.member ?: return
@@ -28,6 +30,7 @@ class SlashCommandInteraction : ListenerAdapter() {
                 SlashCommandConst.STOP_COMMAND -> stopCommand(e)
                 SlashCommandConst.RESET_COMMAND -> resetCommand(e)
                 SlashCommandConst.MAKE_HO_COMMAND -> makeHOCommand(e)
+                SlashCommandConst.CHECK_SCHEDULE_COMMAND -> checkSchedule(e)
                 SlashCommandConst.SEND_COMMAND -> send(e)
             }
         } catch (error:Exception) {
@@ -90,6 +93,12 @@ class SlashCommandInteraction : ListenerAdapter() {
         discordManager.makeHOChannel(guild,scenarioName,hoNumber)
 
         val message = "HOチャンネル作成完了しました"
+        e.reply(message).setEphemeral(true).queue()
+    }
+
+    private fun checkSchedule(e:SlashCommandInteractionEvent) {
+        val message = "チェックを走らせます"
+        notificationManager.check()
         e.reply(message).setEphemeral(true).queue()
     }
 
