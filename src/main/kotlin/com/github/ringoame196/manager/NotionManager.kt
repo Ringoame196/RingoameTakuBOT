@@ -153,12 +153,7 @@ class NotionManager {
                     ?.get("plain_text")
                     ?.asString ?: "なし"
 
-                val notification = properties.getAsJsonObject("通知")
-                    ?.getAsJsonObject("select")  // 🔹 select 型に変更
-                    ?.get("name")
-                    ?.asString ?: "なし"
-
-                NotionScheduleData(scenarioName, data, channelId,notification)
+                NotionScheduleData(scenarioName, data, channelId)
             } catch (e: Exception) {
                 println("データの解析に失敗: ${e.message}")
                 null
