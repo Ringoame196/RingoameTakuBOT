@@ -21,6 +21,9 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:$sqliteVersion") // SQLite
     implementation("org.slf4j:slf4j-simple:2.0.9") // SLF4J は ログ出力のための統一インターフェース
     implementation("org.yaml:snakeyaml:2.2") // yamlファイル読み込み用
+    // notion
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.google.code.gson:gson:2.10")
 }
 
 tasks.test {
