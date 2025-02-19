@@ -44,17 +44,16 @@ class NotificationManager {
 
     fun check() {
         val sessionReminderMessage = "@everyone\n[セッションVC]\n${Data.SESSION_VOICE_CHANNEL_URL}"
-        val characterSheetReminderMessage = "キャラシ提出がまだの方は 提出お願いします"
+        val characterSheetReminderMessage = "キャラシ提出がまだの方は\n提出お願いします。"
         val jda = Data.jda ?: return
+        val scheduleDataList = notionManager.acquisitionSchedule() // 呼び出しを1回で済ませる
         // 1日前通知
-        checkNotification(jda,1,sessionReminderMessage)
+        checkNotification(jda,1,sessionReminderMessage,scheduleDataList)
         // 1週間前通知
-        checkNotification(jda,7,characterSheetReminderMessage)
+        checkNotification(jda,7,characterSheetReminderMessage,scheduleDataList)
     }
 
-    private fun checkNotification(jda: JDA,period: Int,addingMessage: String) {
-        val scheduleDataList = notionManager.acquisitionSchedule()
-
+    private fun checkNotification(jda: JDA,period: Int,addingMessage: String,scheduleDataList: List<NotionScheduleData>) {
         // 特定の日程のスケジュール 確認
         for (schedule in scheduleDataList) {
             // 通知ステータスが設定されていない場合 飛ばす
