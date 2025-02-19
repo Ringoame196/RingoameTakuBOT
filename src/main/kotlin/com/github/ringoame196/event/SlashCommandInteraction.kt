@@ -46,12 +46,7 @@ class SlashCommandInteraction : ListenerAdapter() {
         return CommandOptions(
             e.getOption(SlashCommandConst.SCENARIO_NAME_OPTION)?.asString,
             e.getOption(SlashCommandConst.HO_NUMBER_OPTION)?.asDouble?.toInt(),
-            e.getOption(SlashCommandConst.DAY_OPTION)?.asString,
-            e.getOption(SlashCommandConst.TIME_OPTION)?.asString,
-            e.getOption(SlashCommandConst.CHANNEL_OPTION)?.asChannel,
-            e.getOption(SlashCommandConst.ID_OPTION)?.asInt,
             e.getOption(SlashCommandConst.TEXT_OPTION)?.asString,
-            e.getOption(SlashCommandConst.STATUS_OPTION)?.asInt
         )
     }
 
