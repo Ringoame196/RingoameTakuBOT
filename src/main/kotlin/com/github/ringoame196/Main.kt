@@ -1,12 +1,9 @@
 package com.github.ringoame196
 
-import com.github.ringoame196.managers.ConfigManager
-import com.github.ringoame196.managers.DataBaseManager
-import com.github.ringoame196.managers.DiscordManager
-import com.github.ringoame196.managers.FixedTermScheduleManager
-import com.github.ringoame196.managers.ScheduleManager
+import com.github.ringoame196.manager.ConfigManager
+import com.github.ringoame196.manager.DiscordManager
 import com.github.ringoame196.datas.Data
-import java.io.File
+import com.github.ringoame196.manager.NotificationManager
 
 fun main() {
     val configManager = ConfigManager()
@@ -19,21 +16,12 @@ fun main() {
         return
     }
 
-    // db作成
-    val currentPath = File(".").canonicalPath
-    val dbFilePath = "${currentPath}\\data.db"
-    val dataBaseManager = DataBaseManager()
-    Data.dbFilePath = dbFilePath
-    dataBaseManager.makeDataBase()
-
     val discordManager = DiscordManager()
     val jda = discordManager.setUpDiscordJDA()
 
     jda.awaitReady()
     Data.jda = jda
 
-    val scheduleManager = ScheduleManager()
-    val fixedTermScheduleManager = FixedTermScheduleManager()
-    scheduleManager.autoDeleteOldSchedule() // 古いschedule削除
-    fixedTermScheduleManager.startFixedTermCheck() // 定期スケジュールチェック開始
+    val notificationManager = NotificationManager()
+    notificationManager.scheduleDailyTaskAtMidnight()
 }
