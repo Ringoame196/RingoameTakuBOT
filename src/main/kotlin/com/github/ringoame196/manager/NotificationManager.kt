@@ -4,6 +4,8 @@ import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.NotionScheduleData
 import net.dv8tion.jda.api.JDA
 import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -84,7 +86,10 @@ class NotificationManager {
 
     private fun calculateDaysDifference(targetDate: Date): Int {
         val today = Date() // 今日の日付
-        val diffInMillis = targetDate.time - today.time // ミリ秒単位で差を計算
-        return (diffInMillis / (1000 * 60 * 60 * 24)).toInt() // ミリ秒を日数に変換
+
+        val startLocalDate = today.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        val endLocalDate = targetDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+        return ChronoUnit.DAYS.between(startLocalDate, endLocalDate).toInt()
     }
 }
