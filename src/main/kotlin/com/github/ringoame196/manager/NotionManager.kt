@@ -32,30 +32,71 @@ class NotionManager {
         do {
             val jsonBody = if (nextCursor == null) {
                 """
+    {
+        "filter": {
+            "and": [
                 {
-                    "filter": {
-                        "property": "セッション日",
-                        "date": {
-                            "on_or_after": "$today"
+                    "property": "セッション日",
+                    "date": {
+                        "on_or_after": "$today"
+                    }
+                },
+                {
+                    "or": [
+                        {
+                            "property": "通知",
+                            "select": {
+                                "equals": "${Data.NOTIFICATION_ONE_DAYS_AGO}"
+                            }
+                        },
+                        {
+                            "property": "通知",
+                            "select": {
+                                "equals": "${Data.NOTIFICATION_SEVEN_DAYS_AGO}"
+                            }
                         }
-                    },
-                    "page_size": 100
+                    ]
                 }
-                """.trimIndent()
+            ]
+        },
+        "page_size": 100
+    }
+    """.trimIndent()
             } else {
                 """
+    {
+        "filter": {
+            "and": [
                 {
-                    "filter": {
-                        "property": "セッション日",
-                        "date": {
-                            "on_or_after": "$today"
+                    "property": "セッション日",
+                    "date": {
+                        "on_or_after": "$today"
+                    }
+                },
+                {
+                    "or": [
+                        {
+                            "property": "通知",
+                            "select": {
+                                "equals": "${Data.NOTIFICATION_ONE_DAYS_AGO}"
+                            }
+                        },
+                        {
+                            "property": "通知",
+                            "select": {
+                                "equals": "${Data.NOTIFICATION_SEVEN_DAYS_AGO}"
+                            }
                         }
-                    },
-                    "page_size": 100,
-                    "start_cursor": "$nextCursor"
+                    ]
                 }
-                """.trimIndent()
+            ]
+        },
+        "page_size": 100,
+        "start_cursor": "$nextCursor"
+    }
+    """.trimIndent()
             }
+
 
             val requestBody = jsonBody.toRequestBody(jsonMediaType)
 
@@ -112,7 +153,12 @@ class NotionManager {
                     ?.get("plain_text")
                     ?.asString ?: "なし"
 
-                NotionScheduleData(scenarioName, data, channelId)
+                val notification = properties.getAsJsonObject("通知")
+                    ?.getAsJsonObject("select")  // 🔹 select 型に変更
+                    ?.get("name")
+                    ?.asString ?: "なし"
+
+                NotionScheduleData(scenarioName, data, channelId,notification)
             } catch (e: Exception) {
                 println("データの解析に失敗: ${e.message}")
                 null
