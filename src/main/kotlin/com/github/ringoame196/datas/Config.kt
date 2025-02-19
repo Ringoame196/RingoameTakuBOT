@@ -4,5 +4,7 @@ data class Config(
     val token:String?,
     val activity: String?,
     val dateMessageID: String?,
-    val dateChannelID:String?
+    val dateChannelID:String?,
+    val notionAPIKey:String?,
+    val dataBaseID: String?
 )

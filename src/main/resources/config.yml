@@ -2,3 +2,5 @@ token:
 activity:
 date_channel_id:
 date_message_id:
+notion_api_key:
+database_id:
