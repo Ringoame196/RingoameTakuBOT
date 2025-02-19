@@ -1,4 +1,4 @@
-package com.github.ringoame196.events
+package com.github.ringoame196.event
 
 object SlashCommandConst {
     const val TEST_COMMAND = "test"

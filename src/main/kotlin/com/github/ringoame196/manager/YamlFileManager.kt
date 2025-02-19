@@ -1,4 +1,4 @@
-package com.github.ringoame196.managers
+package com.github.ringoame196.manager
 
 import org.yaml.snakeyaml.Yaml
 import java.io.File

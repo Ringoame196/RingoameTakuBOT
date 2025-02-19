@@ -1,4 +1,4 @@
-package com.github.ringoame196.managers
+package com.github.ringoame196.manager
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
