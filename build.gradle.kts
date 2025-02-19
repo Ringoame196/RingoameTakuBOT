@@ -17,8 +17,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.0")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    val sqliteVersion = "3.46.1.0"
-    implementation("org.xerial:sqlite-jdbc:$sqliteVersion") // SQLite
     implementation("org.slf4j:slf4j-simple:2.0.9") // SLF4J は ログ出力のための統一インターフェース
     implementation("org.yaml:snakeyaml:2.2") // yamlファイル読み込み用
     // notion
