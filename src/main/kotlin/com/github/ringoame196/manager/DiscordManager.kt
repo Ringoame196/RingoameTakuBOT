@@ -81,25 +81,9 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.MAKE_HO_COMMAND, "HOチャンネルを作成する")
                 .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ名前", true)
                 .addOption(OptionType.NUMBER, SlashCommandConst.HO_NUMBER_OPTION, "HO数", true),
-            Commands.slash(SlashCommandConst.SCHEDULE_COMMAND, "スケジュール設定")
-                .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ名", true)
-                .addOption(OptionType.STRING, SlashCommandConst.DAY_OPTION, "予定日", true)
-                .addOption(OptionType.STRING, SlashCommandConst.TIME_OPTION, "時間", true)
-                .addOption(OptionType.CHANNEL, SlashCommandConst.CHANNEL_OPTION, "通知チャンネル", true)
-                .addOption(OptionType.INTEGER, SlashCommandConst.STATUS_OPTION,"ステータス",true),
-            Commands.slash(SlashCommandConst.DELETE_SCHEDULE_COMMAND, "スケジュールを削除する")
-                .addOption(OptionType.INTEGER, SlashCommandConst.ID_OPTION, "セッション管理id", true),
-            Commands.slash(SlashCommandConst.LIST_SCHEDULE_COMMAND, "スケジュールを確認する"),
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
-            Commands.slash(SlashCommandConst.EDIT_SCHEDULE_COMMAND,"スケジュールの予定を編集")
-                .addOption(OptionType.INTEGER, SlashCommandConst.ID_OPTION,"セッション管理id",true)
-                .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ名", false)
-                .addOption(OptionType.STRING, SlashCommandConst.DAY_OPTION, "予定日", false)
-                .addOption(OptionType.STRING, SlashCommandConst.TIME_OPTION, "時間", false)
-                .addOption(OptionType.CHANNEL, SlashCommandConst.CHANNEL_OPTION, "通知チャンネル", false)
-                .addOption(OptionType.INTEGER, SlashCommandConst.STATUS_OPTION,"ステータス",false),
             ).queue()
         return jda
     }
