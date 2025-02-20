@@ -43,7 +43,7 @@ class NotificationManager {
     }
 
     fun check() {
-        val sessionReminderMessage = "@everyone\n[セッションVC]\n${Data.SESSION_VOICE_CHANNEL_URL}"
+        val sessionReminderMessage = "@everyone\n## [セッションVC]\n${Data.SESSION_VOICE_CHANNEL_URL}"
         val characterSheetReminderMessage = "キャラシ提出がまだの方は\n提出お願いします。"
         val jda = Data.jda ?: return
         val scheduleDataList = notionManager.acquisitionSchedule() // 呼び出しを1回で済ませる
