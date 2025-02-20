@@ -57,7 +57,6 @@ class NotificationManager {
         // 特定の日程のスケジュール 確認
         for (schedule in scheduleDataList) {
             // 通知ステータスが設定されていない場合 飛ばす
-            println(calculateDaysDifference(schedule.datetime))
             if (calculateDaysDifference(schedule.datetime) != (period - 1)) continue
             sendSchedule(schedule,jda,period,addingMessage)
         }
