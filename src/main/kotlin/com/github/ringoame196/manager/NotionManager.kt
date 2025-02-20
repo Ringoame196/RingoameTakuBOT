@@ -20,6 +20,9 @@ class NotionManager {
 
     fun acquisitionSchedule():List<NotionScheduleData> {
         val notionData = acquisitionNotionSchedule()
+        // コンソールメッセージ
+        val message = "${notionData.size}件のスケジュールを取得しました"
+        println(message)
         return conversionNotionScheduleData(notionData)
     }
 
