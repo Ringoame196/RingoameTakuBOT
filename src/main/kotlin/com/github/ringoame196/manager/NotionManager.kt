@@ -147,7 +147,11 @@ class NotionManager {
                     ?.getAsJsonObject("date")
                     ?.get("start")
                     ?.asString ?: "未定"
-                val data = convertToDate(sessionDate)
+                val startTime = properties.getAsJsonObject("セッション日")
+                    ?.getAsJsonObject("time")
+                    ?.get("start")
+                    ?.asString ?: "未定"
+                val data = convertToDate("$sessionDate $startTime")
 
                 val channelId = properties.getAsJsonObject("チャンネルID")
                     ?.getAsJsonArray("rich_text")
@@ -166,7 +170,7 @@ class NotionManager {
 
     private fun convertToDate(datetime: String): Date {
         // 最初に日付形式（YYYY-MM-DD）を処理するためのフォーマット
-        val formatDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formatDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         try {
             return formatDate.parse(datetime) // まずは日付だけの形式を試す
         } catch (e: Exception) {
