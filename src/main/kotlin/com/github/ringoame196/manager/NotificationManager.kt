@@ -4,6 +4,7 @@ import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.NotionScheduleData
 import net.dv8tion.jda.api.JDA
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
@@ -57,7 +58,8 @@ class NotificationManager {
         // 特定の日程のスケジュール 確認
         for (schedule in scheduleDataList) {
             // 通知ステータスが設定されていない場合 飛ばす
-            if (calculateDaysDifference(schedule.datetime) != (period - 1)) continue
+            val daysDifference = calculateDaysDifference(schedule.datetime)
+            if (daysDifference != (period - 1)) continue
             sendSchedule(schedule,jda,period,addingMessage)
         }
     }
@@ -83,11 +85,15 @@ class NotificationManager {
     }
 
     private fun calculateDaysDifference(targetDate: Date): Int {
-        val today = Date() // 今日の日付
+        val zoneId = ZoneId.systemDefault() // システムのデフォルトタイムゾーンを取得
 
-        val startLocalDate = today.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-        val endLocalDate = targetDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        // 今日の日付（時間情報を削除）
+        val todayLocalDate = LocalDate.now(zoneId)
 
-        return ChronoUnit.DAYS.between(startLocalDate, endLocalDate).toInt()
+        // targetDate を LocalDate に変換（時間情報を削除）
+        val targetLocalDate = targetDate.toInstant().atZone(zoneId).toLocalDate()
+
+        // 日にちだけの差分を計算
+        return ChronoUnit.DAYS.between(todayLocalDate, targetLocalDate).toInt()
     }
 }
