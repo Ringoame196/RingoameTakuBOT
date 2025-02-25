@@ -8,10 +8,10 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Locale
 
 class NotionManager {
     private val client = OkHttpClient()
@@ -147,20 +147,23 @@ class NotionManager {
                     ?.getAsJsonObject("date")
                     ?.get("start")
                     ?.asString ?: "未定"
-                val startTime = properties.getAsJsonObject("セッション日")
-                    ?.getAsJsonObject("time")
-                    ?.get("start")
-                    ?.asString ?: "未定"
-                val data = convertToDate("$sessionDate $startTime")
 
-                val channelId = properties.getAsJsonObject("チャンネルID")
-                    ?.getAsJsonArray("rich_text")
-                    ?.firstOrNull()
-                    ?.asJsonObject
-                    ?.get("plain_text")
-                    ?.asString ?: "なし"
+                val data = parseISO8601(sessionDate)
 
-                NotionScheduleData(scenarioName, data, channelId)
+                if (data != null) {
+                    val channelId = properties.getAsJsonObject("チャンネルID")
+                        ?.getAsJsonArray("rich_text")
+                        ?.firstOrNull()
+                        ?.asJsonObject
+                        ?.get("plain_text")
+                        ?.asString ?: "なし"
+
+                    NotionScheduleData(scenarioName, data, channelId)
+                } else {
+                    println("日にちがnullです")
+                    null
+                }
+
             } catch (e: Exception) {
                 println("データの解析に失敗: ${e.message}")
                 null
@@ -168,15 +171,15 @@ class NotionManager {
         }
     }
 
-    private fun convertToDate(datetime: String): Date {
-        // 最初に日付形式（YYYY-MM-DD）を処理するためのフォーマット
-        val formatDate = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-        try {
-            return formatDate.parse(datetime) // まずは日付だけの形式を試す
+    fun parseISO8601(isoString: String): Date? {
+        return try {
+            // ISO 8601 のフォーマットで解析
+            val zonedDateTime = ZonedDateTime.parse(isoString, DateTimeFormatter.ISO_DATE_TIME)
+
+            return Date.from(zonedDateTime.toInstant())
         } catch (e: Exception) {
-            // 日付だけの形式で失敗した場合、ISO8601形式（日時＋タイムゾーン）を試す
-            val formatDateTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
-            return formatDateTime.parse(datetime) // 時間部分とタイムゾーンがある場合
+            println("日付の解析に失敗: ${e.message}")
+            null
         }
     }
 }
