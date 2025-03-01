@@ -158,7 +158,10 @@ class NotionManager {
                         ?.get("plain_text")
                         ?.asString ?: "なし"
 
-                    NotionScheduleData(scenarioName, data, channelId)
+                    val status = properties.getAsJsonObject("通知")
+                        ?.getAsJsonObject("select")?.get("name")?.asString ?: "なし"
+
+                    NotionScheduleData(scenarioName, data, channelId,status)
                 } else {
                     println("日にちがnullです")
                     null
