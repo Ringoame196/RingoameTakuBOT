@@ -16,33 +16,6 @@ import java.util.concurrent.TimeUnit
 class NotificationManager {
     private val notionManager = NotionManager()
 
-    fun scheduleDailyTaskAtMidnight() {
-        val scheduler = Executors.newSingleThreadScheduledExecutor()
-
-        // 現在の時刻を取得
-        val now = Calendar.getInstance()
-
-        // 次回の0時を計算
-        val midnight = Calendar.getInstance()
-        midnight.set(Calendar.HOUR_OF_DAY, 0)
-        midnight.set(Calendar.MINUTE, 0)
-        midnight.set(Calendar.SECOND, 0)
-        midnight.set(Calendar.MILLISECOND, 0)
-
-        // 現在が0時を過ぎていれば、次の日の0時に設定
-        if (now.after(midnight)) {
-            midnight.add(Calendar.DAY_OF_MONTH, 1)
-        }
-
-        // 次回0時までの遅延時間をミリ秒単位で計算
-        val delay = midnight.timeInMillis - now.timeInMillis
-
-        // 次回0時にタスクを実行し、その後は毎日繰り返し
-        scheduler.scheduleAtFixedRate({
-            check()
-        }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
-    }
-
     fun check() {
         val sessionReminderMessage = "@everyone\n## [セッションVC]\n${Data.SESSION_VOICE_CHANNEL_URL}"
         val characterSheetReminderMessage = "キャラシ提出がまだの方は\n提出お願いします。"

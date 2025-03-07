@@ -1,5 +1,6 @@
 package com.github.ringoame196.manager
 
+import com.github.ringoame196.datas.ScenarioStorage
 import com.github.ringoame196.event.MessageReceivedEvent
 import com.github.ringoame196.event.SlashCommandConst
 import com.github.ringoame196.event.SlashCommandInteraction
@@ -121,5 +122,23 @@ class DiscordManager {
                     }
             }
         }
+    }
+
+    fun acquisitionScenarioStorage(categoryID: String?): Map<String,List<ScenarioStorage>> {
+        val scenarioStorageData = mutableMapOf<String,List<ScenarioStorage>>()
+        categoryID?:return scenarioStorageData
+        val category = Data.jda?.getCategoryById(categoryID) ?: return scenarioStorageData
+
+        for (forum in category.forumChannels) {
+            val scenarioStorageList = mutableListOf<ScenarioStorage>()
+            for (threat in forum.threadChannels) {
+                val scenarioStorage = ScenarioStorage(
+                    forum.name,threat,!threat.name.contains(":closed_lock_with_key:")
+                )
+                scenarioStorageList.add(scenarioStorage)
+            }
+            scenarioStorageData[forum.name] = scenarioStorageList
+        }
+        return scenarioStorageData
     }
 }

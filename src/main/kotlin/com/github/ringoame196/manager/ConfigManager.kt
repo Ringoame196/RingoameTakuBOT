@@ -25,7 +25,10 @@ class ConfigManager {
             fileData["token"],
             fileData["activity"],
             fileData["notion_api_key"],
-            fileData["database_id"]
+            fileData["database_id"],
+            fileData["scenario_category_id"],
+            fileData["scenarioSend_channel_id"],
+            fileData["scenarioSend_message_id"]
         )
         Data.config = config
     }

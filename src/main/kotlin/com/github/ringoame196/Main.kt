@@ -4,6 +4,9 @@ import com.github.ringoame196.manager.ConfigManager
 import com.github.ringoame196.manager.DiscordManager
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.NotificationManager
+import java.util.Calendar
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 fun main() {
     // config関係
@@ -24,7 +27,40 @@ fun main() {
     jda.awaitReady()
     Data.jda = jda
 
+    executeRegularly() // 定期実行開始
+
+    val scenarioStorage = ScenarioStorage()
+    scenarioStorage.send()
+}
+
+fun executeRegularly() {
     // notion、スケジュール関係
     val notificationManager = NotificationManager()
-    notificationManager.scheduleDailyTaskAtMidnight()
+
+    val scheduler = Executors.newSingleThreadScheduledExecutor()
+    val scenarioStorage = ScenarioStorage()
+
+    // 現在の時刻を取得
+    val now = Calendar.getInstance()
+
+    // 次回の0時を計算
+    val midnight = Calendar.getInstance()
+    midnight.set(Calendar.HOUR_OF_DAY, 0)
+    midnight.set(Calendar.MINUTE, 0)
+    midnight.set(Calendar.SECOND, 0)
+    midnight.set(Calendar.MILLISECOND, 0)
+
+    // 現在が0時を過ぎていれば、次の日の0時に設定
+    if (now.after(midnight)) {
+        midnight.add(Calendar.DAY_OF_MONTH, 1)
+    }
+
+    // 次回0時までの遅延時間をミリ秒単位で計算
+    val delay = midnight.timeInMillis - now.timeInMillis
+
+    // 次回0時にタスクを実行し、その後は毎日繰り返し
+    scheduler.scheduleAtFixedRate({
+        scenarioStorage.send()
+        notificationManager.check()
+    }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 }
