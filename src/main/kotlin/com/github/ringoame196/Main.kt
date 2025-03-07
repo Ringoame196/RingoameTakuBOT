@@ -38,7 +38,6 @@ fun executeRegularly() {
     val notificationManager = NotificationManager()
 
     val scheduler = Executors.newSingleThreadScheduledExecutor()
-    val scenarioStorage = ScenarioStorage()
 
     // 現在の時刻を取得
     val now = Calendar.getInstance()
@@ -60,6 +59,7 @@ fun executeRegularly() {
 
     // 次回0時にタスクを実行し、その後は毎日繰り返し
     scheduler.scheduleAtFixedRate({
+        val scenarioStorage = ScenarioStorage()
         scenarioStorage.send()
         notificationManager.check()
     }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
