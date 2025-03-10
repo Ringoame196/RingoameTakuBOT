@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.channel.concrete.Category
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -124,13 +125,20 @@ class DiscordManager {
         }
     }
 
-    fun acquisitionScenarioStorage(categoryID: String?): Map<String,List<ThreadChannel>> {
-        val scenarioStorageData = mutableMapOf<String,List<ThreadChannel>>()
-        categoryID?:return scenarioStorageData
-        val category = Data.jda?.getCategoryById(categoryID) ?: return scenarioStorageData
+    fun acquisitionScenarioStorage(categoryID: String?): Map<String, List<ThreadChannel>> {
+        val scenarioStorageData = mutableMapOf<String, List<ThreadChannel>>()
+        categoryID ?: return scenarioStorageData
+        val category: Category = Data.jda?.getCategoryById(categoryID) ?: return scenarioStorageData
 
         for (forum in category.forumChannels) {
-            scenarioStorageData[forum.name] = forum.threadChannels
+            val activeThreads = forum.threadChannels
+            val archivedThreads = forum.retrieveArchivedPublicThreadChannels().complete() // アーカイブされたスレッドを取得
+
+            val allThreads = mutableListOf<ThreadChannel>()
+            allThreads.addAll(activeThreads)
+            allThreads.addAll(archivedThreads)
+
+            scenarioStorageData[forum.name] = allThreads
         }
         return scenarioStorageData
     }
