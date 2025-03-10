@@ -10,7 +10,7 @@ class ScenarioStorage() {
     private val discordManager = DiscordManager()
     private val scenarioStorageList = discordManager.acquisitionScenarioStorage(categoryID)
 
-    fun send() {
+    fun update() {
         val channelID = Data.config.scenarioSendChannelID ?: return
         val messageID = Data.config.scenarioSendMessageID ?: return
 

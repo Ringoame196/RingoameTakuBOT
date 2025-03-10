@@ -1,6 +1,5 @@
 package com.github.ringoame196.manager
 
-import com.github.ringoame196.datas.ScenarioStorage
 import com.github.ringoame196.event.MessageReceivedEvent
 import com.github.ringoame196.event.SlashCommandConst
 import com.github.ringoame196.event.SlashCommandInteraction
@@ -16,6 +15,7 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -124,20 +124,13 @@ class DiscordManager {
         }
     }
 
-    fun acquisitionScenarioStorage(categoryID: String?): Map<String,List<ScenarioStorage>> {
-        val scenarioStorageData = mutableMapOf<String,List<ScenarioStorage>>()
+    fun acquisitionScenarioStorage(categoryID: String?): Map<String,List<ThreadChannel>> {
+        val scenarioStorageData = mutableMapOf<String,List<ThreadChannel>>()
         categoryID?:return scenarioStorageData
         val category = Data.jda?.getCategoryById(categoryID) ?: return scenarioStorageData
 
         for (forum in category.forumChannels) {
-            val scenarioStorageList = mutableListOf<ScenarioStorage>()
-            for (threat in forum.threadChannels) {
-                val scenarioStorage = ScenarioStorage(
-                    forum.name,threat,!threat.name.contains(":closed_lock_with_key:")
-                )
-                scenarioStorageList.add(scenarioStorage)
-            }
-            scenarioStorageData[forum.name] = scenarioStorageList
+            scenarioStorageData[forum.name] = forum.threadChannels
         }
         return scenarioStorageData
     }
