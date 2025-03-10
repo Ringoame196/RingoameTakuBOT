@@ -24,7 +24,7 @@ class ScenarioStorage() {
         }
         var embed = discordManager.makeEmbed(title,color= Color.GREEN, fields = fields)
 
-        channel.editMessageById(messageID," ").queue()
+        channel.editMessageById(messageID,"# シナリオ置き場情報").queue()
         channel.editMessageEmbedsById(messageID,embed).queue()
     }
 }
