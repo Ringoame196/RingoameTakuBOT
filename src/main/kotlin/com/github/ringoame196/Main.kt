@@ -27,15 +27,16 @@ fun main() {
     jda.awaitReady()
     Data.jda = jda
 
-    executeRegularly() // 定期実行開始
+    val scenarioStorageManager = ScenarioStorageManager()
+    scenarioStorageManager.update()
 
-    val scenarioStorage = ScenarioStorage()
-    scenarioStorage.update()
+    executeRegularly() // 定期実行開始
 }
 
 fun executeRegularly() {
     // notion、スケジュール関係
     val notificationManager = NotificationManager()
+    val scenarioStorageManager = ScenarioStorageManager()
 
     val scheduler = Executors.newSingleThreadScheduledExecutor()
 
@@ -59,8 +60,7 @@ fun executeRegularly() {
 
     // 次回0時にタスクを実行し、その後は毎日繰り返し
     scheduler.scheduleAtFixedRate({
-        val scenarioStorage = ScenarioStorage()
-        scenarioStorage.update()
+        scenarioStorageManager.update()
         notificationManager.check()
     }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 }

@@ -3,12 +3,16 @@ package com.github.ringoame196
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.DiscordManager
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
 import java.awt.Color
 
-class ScenarioStorage() {
+class ScenarioStorageManager() {
     private val categoryID = Data.config.scenarioCategoryID
     private val discordManager = DiscordManager()
-    private val scenarioStorageList = discordManager.acquisitionScenarioStorage(categoryID)
+
+    private fun acquisitionScenarioStorage(): Map<String, List<ThreadChannel>> {
+        return discordManager.acquisitionScenarioStorage(categoryID)
+    }
 
     fun update() {
         val channelID = Data.config.scenarioSendChannelID ?: return
@@ -18,6 +22,8 @@ class ScenarioStorage() {
 
         val title = ":placard: シナリオ情報"
         val fields = mutableListOf<MessageEmbed.Field>()
+
+        val scenarioStorageList = acquisitionScenarioStorage()
 
         for ((formName,threatList) in scenarioStorageList) {
             fields.add(MessageEmbed.Field(formName,":book: ${threatList.size}シナリオ",false))
