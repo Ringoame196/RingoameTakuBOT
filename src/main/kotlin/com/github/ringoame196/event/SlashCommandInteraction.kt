@@ -1,5 +1,6 @@
 package com.github.ringoame196.event
 
+import com.github.ringoame196.ScenarioStorageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,6 +57,10 @@ class SlashCommandInteraction : ListenerAdapter() {
     private fun testCommand(e: SlashCommandInteractionEvent) {
         val message = "テストだよ！"
         e.reply(message).setEphemeral(true).queue()
+
+        val scenarioStorageManager = ScenarioStorageManager()
+        val scenarioStorageList = scenarioStorageManager.acquisitionScenarioStorageList()
+        scenarioStorageManager.update(scenarioStorageList)
     }
 
     private fun stopCommand(e: SlashCommandInteractionEvent) {
