@@ -28,7 +28,8 @@ fun main() {
     Data.jda = jda
 
     val scenarioStorageManager = ScenarioStorageManager()
-    scenarioStorageManager.update()
+    val scenarioStorageList = scenarioStorageManager.acquisitionScenarioStorageList()
+    scenarioStorageManager.update(scenarioStorageList)
 
     executeRegularly() // 定期実行開始
 }
@@ -60,7 +61,8 @@ fun executeRegularly() {
 
     // 次回0時にタスクを実行し、その後は毎日繰り返し
     scheduler.scheduleAtFixedRate({
-        scenarioStorageManager.update()
+        val scenarioStorageList = scenarioStorageManager.acquisitionScenarioStorageList()
+        scenarioStorageManager.update(scenarioStorageList)
         notificationManager.check()
     }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 }
