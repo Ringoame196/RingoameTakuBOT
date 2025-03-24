@@ -28,6 +28,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.register<Copy>("buildServer") {
+    from(buildDir.resolve("libs/${project.name}-${project.version}.jar")) // コピー元
+    into("Z:/discord/ringoametakuBOT") // コピー先フォルダ
+    rename { "bot.jar" } // ファイル名を変更
+}
+
 tasks.jar {
     manifest {
         attributes["Main-Class"] = "com.github.ringoame196.MainKt"
