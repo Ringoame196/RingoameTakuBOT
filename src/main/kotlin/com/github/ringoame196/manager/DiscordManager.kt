@@ -5,6 +5,7 @@ import com.github.ringoame196.event.SlashCommandConst
 import com.github.ringoame196.event.SlashCommandInteraction
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage
+import com.github.ringoame196.event.ListenerAdapter
 import kotlinx.coroutines.delay
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -73,7 +74,9 @@ class DiscordManager {
 
         // イベントリスナーを追加
         val jda =
-            jdaBuilder.addEventListeners(SlashCommandInteraction(), MessageReceivedEvent()).build() // JDAオブジェクトを取得
+            jdaBuilder.addEventListeners(
+                ListenerAdapter()
+            ).build() // JDAオブジェクトを取得
 
         // スラッシュコマンドの登録
         jda.updateCommands().addCommands(
