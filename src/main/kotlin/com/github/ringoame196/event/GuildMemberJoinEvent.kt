@@ -30,6 +30,5 @@ class GuildMemberJoinEvent: ListenerAdapter() {
         val embed = discordManager.makeEmbed(title = title,color = color, descriptor = embedMessage, author = bot)
 
         welcomeChannel.sendMessage(message).setEmbeds(embed).queue()
-        println("メッセージ送信完了")
     }
 }
