@@ -10,11 +10,8 @@ class GuildMemberJoinEvent: ListenerAdapter() {
     private val discordManager = DiscordManager()
 
     override fun onGuildMemberJoin(e: GuildMemberJoinEvent) {
-        println("発動")
-        val welcomeChanelID = Data.config.welcomeChannelID ?: return
-        println("id取得完了")
-        val welcomeChannel = e.guild.getTextChannelById(welcomeChanelID) ?: return
-        println("チャンネル取得完了")
+        val welcomeChannelID = Data.config.welcomeChannelID ?: return
+        val welcomeChannel = e.guild.getTextChannelById(welcomeChannelID) ?: return
         val user = e.user
 
         val title = "Welcome"
