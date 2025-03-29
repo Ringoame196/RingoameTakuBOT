@@ -8,4 +8,5 @@ data class Config(
     val scenarioCategoryID: String?,
     val scenarioSendChannelID:String?,
     val scenarioSendMessageID:String?,
+    val welcomeChannelID: String?
 )

@@ -1,8 +1,6 @@
 package com.github.ringoame196.manager
 
-import com.github.ringoame196.event.MessageReceivedEvent
 import com.github.ringoame196.event.SlashCommandConst
-import com.github.ringoame196.event.SlashCommandInteraction
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage
 import com.github.ringoame196.event.ListenerAdapter
@@ -63,12 +61,15 @@ class DiscordManager {
         val activity = Data.config.activity
 
         val jdaBuilder =
-            JDABuilder.createDefault(token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT) // bot起動
+            JDABuilder.createDefault(token) // bot起動
 
         jdaBuilder.enableIntents(
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.MESSAGE_CONTENT,
             GatewayIntent.GUILD_VOICE_STATES,
             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
-            GatewayIntent.SCHEDULED_EVENTS
+            GatewayIntent.SCHEDULED_EVENTS,
+            GatewayIntent.GUILD_MEMBERS
         )
         if (activity != null) jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
 
