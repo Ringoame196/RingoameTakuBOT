@@ -13,6 +13,7 @@ class GuildMemberJoinEvent: ListenerAdapter() {
         val welcomeChannelID = Data.config.welcomeChannelID ?: return
         val welcomeChannel = e.guild.getTextChannelById(welcomeChannelID) ?: return
         val user = e.user
+        if (user.isBot) return // BOTだった場合は 通知しない
 
         val title = "Welcome"
         val color = Color.GREEN
