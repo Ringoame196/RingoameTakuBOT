@@ -1,6 +1,7 @@
 package com.github.ringoame196.manager
 
-import com.github.ringoame196.event.SlashCommandConst
+import com.github.ringoame196.datas.CommandOptions
+import com.github.ringoame196.slashCommand.SlashCommandConst
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage
 import com.github.ringoame196.event.ListenerAdapter
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageType
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -69,7 +72,7 @@ class DiscordManager {
             GatewayIntent.GUILD_VOICE_STATES,
             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
             GatewayIntent.SCHEDULED_EVENTS,
-            GatewayIntent.GUILD_MEMBERS
+            GatewayIntent.GUILD_MEMBERS,
         )
         if (activity != null) jdaBuilder.setActivity(Activity.playing(activity)) // アクティビティ設定
 
@@ -90,6 +93,7 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
+            Commands.slash(SlashCommandConst.JOIN_VC_COMMAND,"BOTをvcにいれる")
             ).queue()
         return jda
     }
@@ -147,5 +151,9 @@ class DiscordManager {
             scenarioStorageData.add(scenarioStorage)
         }
         return scenarioStorageData
+    }
+
+    fun acquisitionCommandOptions(e:SlashCommandInteractionEvent,key: String): OptionMapping? {
+        return e.getOption(key)
     }
 }

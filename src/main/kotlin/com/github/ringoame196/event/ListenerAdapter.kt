@@ -1,5 +1,6 @@
 package com.github.ringoame196.event
 
+import com.github.ringoame196.slashCommand.SlashCommandInteraction
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
