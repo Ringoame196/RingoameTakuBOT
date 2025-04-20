@@ -1,6 +1,5 @@
 package com.github.ringoame196.manager
 
-import com.github.ringoame196.datas.CommandOptions
 import com.github.ringoame196.slashCommand.SlashCommandConst
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage

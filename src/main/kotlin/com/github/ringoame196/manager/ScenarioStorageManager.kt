@@ -1,8 +1,7 @@
-package com.github.ringoame196
+package com.github.ringoame196.manager
 
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage
-import com.github.ringoame196.manager.DiscordManager
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 

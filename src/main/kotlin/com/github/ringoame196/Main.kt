@@ -4,6 +4,7 @@ import com.github.ringoame196.manager.ConfigManager
 import com.github.ringoame196.manager.DiscordManager
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.NotificationManager
+import com.github.ringoame196.manager.ScenarioStorageManager
 import java.util.Calendar
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit

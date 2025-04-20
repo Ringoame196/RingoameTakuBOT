@@ -1,6 +1,5 @@
 package com.github.ringoame196.slashCommand
 
-import com.github.ringoame196.ScenarioStorageManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 class JoinVCCommand: Command {

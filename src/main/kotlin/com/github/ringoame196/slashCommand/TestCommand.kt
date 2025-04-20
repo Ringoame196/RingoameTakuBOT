@@ -1,6 +1,6 @@
 package com.github.ringoame196.slashCommand
 
-import com.github.ringoame196.ScenarioStorageManager
+import com.github.ringoame196.manager.ScenarioStorageManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 class TestCommand: Command {

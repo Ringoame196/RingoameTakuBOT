@@ -1,6 +1,5 @@
 package com.github.ringoame196.slashCommand
 
-import com.github.ringoame196.ScenarioStorageManager
 import com.github.ringoame196.manager.DiscordManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
