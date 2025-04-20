@@ -8,6 +8,7 @@ object SlashCommandConst {
     const val CHECK_SCHEDULE_COMMAND = "checkschedule"
     const val SEND_COMMAND = "send"
     const val JOIN_VC_COMMAND = "joinvc"
+    const val ARCHIVE_COMMAND = "archive"
 
     const val SCENARIO_NAME_OPTION = "scenarioname"
     const val HO_NUMBER_OPTION = "honumber"

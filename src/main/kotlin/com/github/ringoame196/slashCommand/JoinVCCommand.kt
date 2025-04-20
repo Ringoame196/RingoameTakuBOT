@@ -19,6 +19,6 @@ class JoinVCCommand: Command {
 
         val audioManager = guild.audioManager
         audioManager.openAudioConnection(channel)
-        e.reply("✅VC に接続しました").queue()
+        e.reply("VC に接続しました").queue()
     }
 }

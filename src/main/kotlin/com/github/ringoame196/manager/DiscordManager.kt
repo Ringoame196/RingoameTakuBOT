@@ -88,12 +88,13 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.STOP_COMMAND, "BOTをシャットダウンします"),
             Commands.slash(SlashCommandConst.RESET_COMMAND, "チャンネルをリセットする"),
             Commands.slash(SlashCommandConst.MAKE_HO_COMMAND, "HOチャンネルを作成する")
-                .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ名前", true)
+                .addOption(OptionType.STRING, SlashCommandConst.SCENARIO_NAME_OPTION, "シナリオ前", true)
                 .addOption(OptionType.NUMBER, SlashCommandConst.HO_NUMBER_OPTION, "HO数", true),
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
-            Commands.slash(SlashCommandConst.JOIN_VC_COMMAND,"BOTをvcにいれる")
+            Commands.slash(SlashCommandConst.JOIN_VC_COMMAND,"BOTをvcにいれる"),
+            Commands.slash(SlashCommandConst.ARCHIVE_COMMAND,"アーカイブコマンド")
             ).queue()
         return jda
     }
