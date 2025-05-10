@@ -12,7 +12,7 @@ class ResetCommand: Command {
         val messageCountToLoad = 80
         val textChannel = e.channel
 
-        // 最初に「考え中...」の非表示メッセージをセット
+        // 最初に「メッセージを削除中です...」の非表示メッセージをセット
         e.deferReply(true).queue { hook ->
             CoroutineScope(Dispatchers.Default).launch {
                 val messages = textChannel.history.retrievePast(messageCountToLoad).complete()
