@@ -8,18 +8,25 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 class ResetCommand: Command {
     private val discordManager = DiscordManager()
-
     override fun runCommand(e: SlashCommandInteractionEvent) {
-        val messageCountToLoad = 80 // 取得するメッセージ数
-        val textChannel = e.channel // テキストチャンネル
-        // コルーチンを使用して非同期処理を実行
-        CoroutineScope(Dispatchers.Default).launch {
-            val messages = textChannel.history.retrievePast(messageCountToLoad).complete() // 指定数のメッセージを取得
+        val messageCountToLoad = 80
+        val textChannel = e.channel
 
-            val startMessage = "${messages.size}のメッセージをリセットします"
-            e.reply(startMessage).setEphemeral(true).queue()
+        // 最初に「考え中...」の非表示メッセージをセット
+        e.deferReply(true).queue { hook ->
+            CoroutineScope(Dispatchers.Default).launch {
+                val messages = textChannel.history.retrievePast(messageCountToLoad).complete()
+                val deletingMsg = "${messages.size}件のメッセージを削除中です..."
+                hook.editOriginal(deletingMsg).queue()
 
-            discordManager.deleteMessages(messages) // メッセージをリセット
+                // メッセージ削除
+                discordManager.deleteMessages(messages)
+
+                // 完了メッセージに更新
+                val doneMsg = "${messages.size}件のメッセージをリセットしました ✅"
+                hook.editOriginal(doneMsg).queue()
+            }
         }
     }
+
 }
