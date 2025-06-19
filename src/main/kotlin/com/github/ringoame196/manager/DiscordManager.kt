@@ -93,7 +93,10 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
             Commands.slash(SlashCommandConst.JOIN_VC_COMMAND,"BOTをvcにいれる"),
-            Commands.slash(SlashCommandConst.ARCHIVE_COMMAND,"アーカイブコマンド")
+            Commands.slash(SlashCommandConst.ARCHIVE_COMMAND,"アーカイブコマンド"),
+            Commands.slash(SlashCommandConst.ROLE_COMMAND,"ロールコマンド")
+                .addOption(OptionType.USER, SlashCommandConst.USER_OPTION,"ユーザー",true)
+                .addOption(OptionType.ROLE, SlashCommandConst.ROLE_OPTION,"ロール",true)
             ).queue()
         return jda
     }
@@ -106,32 +109,31 @@ class DiscordManager {
         }
     }
 
-    fun makeHOChannel(guild: Guild,scenarioName: String,hoNumber: Int) {
-        guild.createCategory(scenarioName).queue { category ->
-            // カテゴリー内にテキストチャンネルを作成
+    fun makeHOChannel(guild: Guild, scenarioName: String, hoNumber: Int, onFailure: (Throwable) -> Unit) {
+        guild.createCategory(scenarioName).queue({ category ->
             for (i in 1..hoNumber) {
                 val hoName = "HO${i}-$scenarioName"
 
-                // ロール作成
                 guild.createRole()
                     .setName(hoName)
-                    .queue { role ->
-                        // チャンネルを作成
-                        category.createTextChannel(hoName).queue { textChannel ->
-                            // @everyoneに対して、チャンネルが見えないようにする
+                    .queue({ role ->
+                        category.createTextChannel(hoName).queue({ textChannel ->
+                            textChannel.upsertPermissionOverride(guild.selfMember)
+                                .setAllowed(Permission.VIEW_CHANNEL)
+                                .queue({}, onFailure)
                             textChannel.upsertPermissionOverride(guild.publicRole)
                                 .setDenied(Permission.VIEW_CHANNEL)
-                                .queue()
+                                .queue({}, onFailure) // ← 失敗時通知
 
-                            // 特定のロールに対して、チャンネルが見えるようにする
                             textChannel.upsertPermissionOverride(role)
                                 .setAllowed(Permission.VIEW_CHANNEL)
-                                .queue()
-                        }
-                    }
+                                .queue({}, onFailure)
+                        }, onFailure) // チャンネル作成失敗
+                    }, onFailure) // ロール作成失敗
             }
-        }
+        }, onFailure) // カテゴリ作成失敗
     }
+
 
     fun acquisitionScenarioStorage(categoryID: String?): List<ScenarioStorage> {
         val scenarioStorageData = mutableListOf<ScenarioStorage>()

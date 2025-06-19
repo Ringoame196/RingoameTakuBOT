@@ -27,6 +27,7 @@ class SlashCommandInteraction : ListenerAdapter() {
                 SlashCommandConst.SEND_COMMAND -> SendCommand()
                 SlashCommandConst.JOIN_VC_COMMAND -> JoinVCCommand()
                 SlashCommandConst.ARCHIVE_COMMAND -> ArchiveCommand()
+                SlashCommandConst.ROLE_COMMAND -> RoleCommand()
                 else -> return
             }
             command.runCommand(e)
