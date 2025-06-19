@@ -3,6 +3,8 @@ package com.github.ringoame196.slashCommand
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.utils.FileUpload
+import java.nio.charset.StandardCharsets
 
 
 class SlashCommandInteraction : ListenerAdapter() {
@@ -29,8 +31,11 @@ class SlashCommandInteraction : ListenerAdapter() {
             }
             command.runCommand(e)
         } catch (error:Exception) {
-            val message = "エラーが発生しました"
-            e.reply(message).setEphemeral(true).queue()
+            val message = "エラーが発生しました\n以下エラー文です"
+            val errorText = error.message ?: "エラー文がないようです"
+            val fileName = "error.txt"
+            val fileBytes = errorText.toByteArray(StandardCharsets.UTF_8)
+            e.reply(message).addFiles(FileUpload.fromData(fileBytes, fileName)).setEphemeral(true).queue()
             println(error.message)
         }
     }
