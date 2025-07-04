@@ -2,7 +2,4 @@ token:
 activity:
 notion_api_key:
 database_id:
-scenario_category_id:
-scenarioSend_channel_id:
-scenarioSend_message_id:
 welcome_channel_id:

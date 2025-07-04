@@ -4,7 +4,6 @@ import com.github.ringoame196.manager.ConfigManager
 import com.github.ringoame196.manager.DiscordManager
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.NotificationManager
-import com.github.ringoame196.manager.ScenarioStorageManager
 import java.util.Calendar
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -28,17 +27,12 @@ fun main() {
     jda.awaitReady()
     Data.jda = jda
 
-    val scenarioStorageManager = ScenarioStorageManager()
-    val scenarioStorageList = scenarioStorageManager.acquisitionScenarioStorageList()
-    scenarioStorageManager.update(scenarioStorageList)
-
     executeRegularly() // 定期実行開始
 }
 
 fun executeRegularly() {
     // notion、スケジュール関係
     val notificationManager = NotificationManager()
-    val scenarioStorageManager = ScenarioStorageManager()
 
     val scheduler = Executors.newSingleThreadScheduledExecutor()
 
@@ -62,8 +56,6 @@ fun executeRegularly() {
 
     // 次回0時にタスクを実行し、その後は毎日繰り返し
     scheduler.scheduleAtFixedRate({
-        val scenarioStorageList = scenarioStorageManager.acquisitionScenarioStorageList()
-        scenarioStorageManager.update(scenarioStorageList)
         notificationManager.check()
     }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 }
