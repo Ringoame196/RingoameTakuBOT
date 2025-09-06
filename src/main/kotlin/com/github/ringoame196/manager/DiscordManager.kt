@@ -1,9 +1,9 @@
 package com.github.ringoame196.manager
 
-import com.github.ringoame196.slashCommand.SlashCommandConst
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.datas.ScenarioStorage
 import com.github.ringoame196.event.ListenerAdapter
+import com.github.ringoame196.slashCommand.SlashCommandConst
 import kotlinx.coroutines.delay
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
@@ -27,13 +27,12 @@ import kotlin.system.exitProcess
 
 class DiscordManager {
 
-
     fun shutdown(jda: JDA) {
         jda.shutdown() // シャットダウン
         exitProcess(0)
     }
 
-    fun makeEmbed(title: String,titleURL:String? = null, color: Color? = null, descriptor: String? = null, image: String? = null, author: User? = null, footer: String? = null, thumbnail: String? = null, timestamp: TemporalAccessor? = null, fields: MutableList<MessageEmbed.Field>? = null): MessageEmbed {
+    fun makeEmbed(title: String, titleURL: String? = null, color: Color? = null, descriptor: String? = null, image: String? = null, author: User? = null, footer: String? = null, thumbnail: String? = null, timestamp: TemporalAccessor? = null, fields: MutableList<MessageEmbed.Field>? = null): MessageEmbed {
         val embed = EmbedBuilder()
         embed.setTitle(title, titleURL) // タイトル
         embed.setDescription(descriptor) // 説明
@@ -58,7 +57,7 @@ class DiscordManager {
         return embed.build()
     }
 
-    fun setUpDiscordJDA():JDA {
+    fun setUpDiscordJDA(): JDA {
         val token = Data.config.token
         val activity = Data.config.activity
 
@@ -92,12 +91,12 @@ class DiscordManager {
             Commands.slash(SlashCommandConst.CHECK_SCHEDULE_COMMAND, "スケジュール通知のチェック"),
             Commands.slash(SlashCommandConst.SEND_COMMAND, "メッセージ送信")
                 .addOption(OptionType.STRING, SlashCommandConst.TEXT_OPTION, "メッセージ", true),
-            Commands.slash(SlashCommandConst.JOIN_VC_COMMAND,"BOTをvcにいれる"),
-            Commands.slash(SlashCommandConst.ARCHIVE_COMMAND,"アーカイブコマンド"),
-            Commands.slash(SlashCommandConst.ROLE_COMMAND,"ロールコマンド")
-                .addOption(OptionType.USER, SlashCommandConst.USER_OPTION,"ユーザー",true)
-                .addOption(OptionType.ROLE, SlashCommandConst.ROLE_OPTION,"ロール",true)
-            ).queue()
+            Commands.slash(SlashCommandConst.JOIN_VC_COMMAND, "BOTをvcにいれる"),
+            Commands.slash(SlashCommandConst.ARCHIVE_COMMAND, "アーカイブコマンド"),
+            Commands.slash(SlashCommandConst.ROLE_COMMAND, "ロールコマンド")
+                .addOption(OptionType.USER, SlashCommandConst.USER_OPTION, "ユーザー", true)
+                .addOption(OptionType.ROLE, SlashCommandConst.ROLE_OPTION, "ロール", true)
+        ).queue()
         return jda
     }
 
@@ -112,7 +111,7 @@ class DiscordManager {
     fun makeHOChannel(guild: Guild, scenarioName: String, hoNumber: Int, onFailure: (Throwable) -> Unit) {
         guild.createCategory(scenarioName).queue({ category ->
             for (i in 1..hoNumber) {
-                val hoName = "HO${i}-$scenarioName"
+                val hoName = "HO$i-$scenarioName"
 
                 guild.createRole()
                     .setName(hoName)
@@ -134,7 +133,6 @@ class DiscordManager {
         }, onFailure) // カテゴリ作成失敗
     }
 
-
     fun acquisitionScenarioStorage(categoryID: String?): List<ScenarioStorage> {
         val scenarioStorageData = mutableListOf<ScenarioStorage>()
         categoryID ?: return scenarioStorageData
@@ -148,14 +146,14 @@ class DiscordManager {
             allThreads.addAll(activeThreads)
             allThreads.addAll(archivedThreads)
 
-            val scenarioStorage = ScenarioStorage(forum.name,allThreads.toMutableList())
+            val scenarioStorage = ScenarioStorage(forum.name, allThreads.toMutableList())
 
             scenarioStorageData.add(scenarioStorage)
         }
         return scenarioStorageData
     }
 
-    fun acquisitionCommandOptions(e:SlashCommandInteractionEvent,key: String): OptionMapping? {
+    fun acquisitionCommandOptions(e: SlashCommandInteractionEvent, key: String): OptionMapping? {
         return e.getOption(key)
     }
 }

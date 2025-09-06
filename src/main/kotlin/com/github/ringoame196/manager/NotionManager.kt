@@ -18,7 +18,7 @@ class NotionManager {
     private val notionApiUrl = "https://api.notion.com/v1/databases/${Data.config.dataBaseID}/query"
     private val jsonMediaType = "application/json".toMediaType()
 
-    fun acquisitionSchedule():List<NotionScheduleData> {
+    fun acquisitionSchedule(): List<NotionScheduleData> {
         val notionData = acquisitionNotionSchedule()
         // コンソールメッセージ
         val message = "${notionData.size}件のスケジュールを取得しました"
@@ -64,7 +64,7 @@ class NotionManager {
         },
         "page_size": 100
     }
-    """.trimIndent()
+                """.trimIndent()
             } else {
                 """
     {
@@ -97,9 +97,8 @@ class NotionManager {
         "page_size": 100,
         "start_cursor": "$nextCursor"
     }
-    """.trimIndent()
+                """.trimIndent()
             }
-
 
             val requestBody = jsonBody.toRequestBody(jsonMediaType)
 
@@ -161,12 +160,11 @@ class NotionManager {
                     val status = properties.getAsJsonObject("通知")
                         ?.getAsJsonObject("select")?.get("name")?.asString ?: "なし"
 
-                    NotionScheduleData(scenarioName, data, channelId,status)
+                    NotionScheduleData(scenarioName, data, channelId, status)
                 } else {
                     println("日にちがnullです")
                     null
                 }
-
             } catch (e: Exception) {
                 println("データの解析に失敗: ${e.message}")
                 null

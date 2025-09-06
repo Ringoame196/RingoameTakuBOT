@@ -3,7 +3,7 @@ package com.github.ringoame196.slashCommand
 import com.github.ringoame196.manager.DiscordManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
-class StopCommand: Command {
+class StopCommand : Command {
     private val discordManager = DiscordManager()
 
     override fun runCommand(e: SlashCommandInteractionEvent) {

@@ -2,7 +2,7 @@ package com.github.ringoame196.slashCommand
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
-class JoinVCCommand: Command {
+class JoinVCCommand : Command {
     override fun runCommand(e: SlashCommandInteractionEvent) {
         val member = e.member ?: return
         val guild = e.guild ?: return

@@ -1,8 +1,8 @@
 package com.github.ringoame196
 
+import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.ConfigManager
 import com.github.ringoame196.manager.DiscordManager
-import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.NotificationManager
 import java.util.Calendar
 import java.util.concurrent.Executors
@@ -48,7 +48,6 @@ fun executeRegularly() {
     scheduler.scheduleAtFixedRate({
         notificationManager.check()
     }, delayMidnight, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
-
 
     // ===== 1時タスク =====
     val discordManager = DiscordManager()

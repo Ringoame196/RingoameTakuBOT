@@ -4,7 +4,7 @@ import com.github.ringoame196.datas.Data
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
-class ArchiveCommand: Command {
+class ArchiveCommand : Command {
     override fun runCommand(e: SlashCommandInteractionEvent) {
         val guild = e.guild ?: return
         val channel = e.channel.asTextChannel()

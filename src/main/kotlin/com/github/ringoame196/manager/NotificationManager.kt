@@ -19,19 +19,19 @@ class NotificationManager {
         val jda = Data.jda ?: return
         val scheduleDataList = notionManager.acquisitionSchedule() // 呼び出しを1回で済ませる
         // 1日前通知
-        checkNotification(jda,1,sessionReminderMessage,scheduleDataList,mutableListOf(Data.NOTIFICATION_ONE_DAYS_AGO,Data.NOTIFICATION_SEVEN_DAYS_AGO))
+        checkNotification(jda, 1, sessionReminderMessage, scheduleDataList, mutableListOf(Data.NOTIFICATION_ONE_DAYS_AGO, Data.NOTIFICATION_SEVEN_DAYS_AGO))
         // 1週間前通知
-        checkNotification(jda,7,characterSheetReminderMessage,scheduleDataList,mutableListOf(Data.NOTIFICATION_SEVEN_DAYS_AGO))
+        checkNotification(jda, 7, characterSheetReminderMessage, scheduleDataList, mutableListOf(Data.NOTIFICATION_SEVEN_DAYS_AGO))
     }
 
-    private fun checkNotification(jda: JDA,period: Int,addingMessage: String,scheduleDataList: List<NotionScheduleData>,targetStatus:List<String>) {
+    private fun checkNotification(jda: JDA, period: Int, addingMessage: String, scheduleDataList: List<NotionScheduleData>, targetStatus: List<String>) {
         // 特定の日程のスケジュール 確認
         for (schedule in scheduleDataList) {
             // 通知ステータスが設定されていない場合 飛ばす
             if (!targetStatus.contains(schedule.status)) continue
             val daysDifference = calculateDaysDifference(schedule.datetime)
             if (daysDifference != (period - 1)) continue
-            sendSchedule(schedule,jda,period,addingMessage)
+            sendSchedule(schedule, jda, period, addingMessage)
         }
     }
 
@@ -43,9 +43,9 @@ class NotificationManager {
         val sendChannel = jda.getTextChannelById(channelId) ?: return
 
         var message = "## [🔔セッション通知]\n" +
-                "「${scenarioName}」のセッションまで約${period}日なことをお知らせします。\n" +
-                "セッション日：$datetime~\n\n" +
-                addingMessage
+            "「$scenarioName」のセッションまで約${period}日なことをお知らせします。\n" +
+            "セッション日：$datetime~\n\n" +
+            addingMessage
 
         sendChannel.sendMessage(message).queue()
     }

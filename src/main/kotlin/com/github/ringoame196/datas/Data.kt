@@ -7,7 +7,7 @@ object Data {
     lateinit var config: Config
 
     // Discord関係
-    var jda:JDA? = null
+    var jda: JDA? = null
     const val SESSION_VOICE_CHANNEL_URL = "https://discord.com/channels/1230147693834407996/1230148660881391779"
     const val SESSION_VOICE_CHANNEL_ID = 1230148660881391779
 

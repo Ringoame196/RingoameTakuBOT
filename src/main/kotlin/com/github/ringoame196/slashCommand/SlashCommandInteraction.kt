@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.utils.FileUpload
 import java.nio.charset.StandardCharsets
 
-
 class SlashCommandInteraction : ListenerAdapter() {
 
     override fun onSlashCommandInteraction(e: SlashCommandInteractionEvent) {
@@ -31,7 +30,7 @@ class SlashCommandInteraction : ListenerAdapter() {
                 else -> return
             }
             command.runCommand(e)
-        } catch (error:Exception) {
+        } catch (error: Exception) {
             val message = "エラーが発生しました\n以下エラー文です"
             val errorText = error.message ?: "エラー文がないようです"
             val fileName = "error.txt"
@@ -41,7 +40,7 @@ class SlashCommandInteraction : ListenerAdapter() {
         }
     }
 
-    private fun canUseCommand(member: Member):Boolean {
+    private fun canUseCommand(member: Member): Boolean {
         return member.isOwner
     }
 }

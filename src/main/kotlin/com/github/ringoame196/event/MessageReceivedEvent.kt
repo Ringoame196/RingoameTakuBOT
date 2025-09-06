@@ -1,12 +1,12 @@
 package com.github.ringoame196.event
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import com.github.ringoame196.manager.DiscordManager
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import java.awt.Color
 import kotlin.random.Random
 
-class MessageReceivedEvent: ListenerAdapter() {
+class MessageReceivedEvent : ListenerAdapter() {
     private val discordManager = DiscordManager()
 
     override fun onMessageReceived(e: MessageReceivedEvent) {
@@ -16,8 +16,8 @@ class MessageReceivedEvent: ListenerAdapter() {
 
         val matchResult = dicePattern.find(message) ?: return
 
-        val numOfDice = matchResult.groupValues[1].toInt()  // 第一キャプチャグループ: サイコロの数
-        val diceSides = matchResult.groupValues[2].toInt()  // 第二キャプチャグループ: サイコロの面数
+        val numOfDice = matchResult.groupValues[1].toInt() // 第一キャプチャグループ: サイコロの数
+        val diceSides = matchResult.groupValues[2].toInt() // 第二キャプチャグループ: サイコロの面数
 
         try {
             val diceList = List(numOfDice) { Random.nextInt(1, diceSides + 1) }
@@ -28,13 +28,13 @@ class MessageReceivedEvent: ListenerAdapter() {
             else "$diceList → $diceTotal"
             val descriptor = "$message -> $dice"
             val color = Color.GREEN
-            val embed = discordManager.makeEmbed(title, descriptor = descriptor, color =  color, author = author)
+            val embed = discordManager.makeEmbed(title, descriptor = descriptor, color = color, author = author)
             e.message.replyEmbeds(embed).queue()
-        } catch (error:IllegalArgumentException) {
+        } catch (error: IllegalArgumentException) {
             val title = "エラー"
             val color = Color.RED
             val descriptor = "ダイス目が大きすぎるため処理できませんでした"
-            val embed = discordManager.makeEmbed(title = title,color = color, descriptor = descriptor)
+            val embed = discordManager.makeEmbed(title = title, color = color, descriptor = descriptor)
             e.message.replyEmbeds(embed).queue()
         }
     }

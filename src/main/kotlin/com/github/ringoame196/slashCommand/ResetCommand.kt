@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
-class ResetCommand: Command {
+class ResetCommand : Command {
     private val discordManager = DiscordManager()
     override fun runCommand(e: SlashCommandInteractionEvent) {
         val messageCountToLoad = 80
@@ -28,5 +28,4 @@ class ResetCommand: Command {
             }
         }
     }
-
 }
