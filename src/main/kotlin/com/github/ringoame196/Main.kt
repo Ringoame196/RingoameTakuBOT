@@ -31,31 +31,43 @@ fun main() {
 }
 
 fun executeRegularly() {
-    // notion、スケジュール関係
     val notificationManager = NotificationManager()
-
     val scheduler = Executors.newSingleThreadScheduledExecutor()
-
-    // 現在の時刻を取得
     val now = Calendar.getInstance()
 
-    // 次回の0時を計算
-    val midnight = Calendar.getInstance()
-    midnight.set(Calendar.HOUR_OF_DAY, 0)
-    midnight.set(Calendar.MINUTE, 0)
-    midnight.set(Calendar.SECOND, 0)
-    midnight.set(Calendar.MILLISECOND, 0)
-
-    // 現在が0時を過ぎていれば、次の日の0時に設定
-    if (now.after(midnight)) {
-        midnight.add(Calendar.DAY_OF_MONTH, 1)
+    // ===== 0時タスク =====
+    val midnight = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        if (now.after(this)) add(Calendar.DAY_OF_MONTH, 1)
     }
+    val delayMidnight = midnight.timeInMillis - now.timeInMillis
 
-    // 次回0時までの遅延時間をミリ秒単位で計算
-    val delay = midnight.timeInMillis - now.timeInMillis
-
-    // 次回0時にタスクを実行し、その後は毎日繰り返し
     scheduler.scheduleAtFixedRate({
         notificationManager.check()
-    }, delay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
+    }, delayMidnight, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
+
+
+    // ===== 1時タスク =====
+    val discordManager = DiscordManager()
+    val oneAM = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 1)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        if (now.after(this)) add(Calendar.DAY_OF_MONTH, 1)
+    }
+    val delayOneAM = oneAM.timeInMillis - now.timeInMillis
+
+    scheduler.scheduleAtFixedRate({
+        val jda = Data.jda
+        if (jda != null) {
+            println("再起動しました")
+            discordManager.shutdown(jda)
+        } else {
+            println("再起動に失敗しました")
+        }
+    }, delayOneAM, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 }
