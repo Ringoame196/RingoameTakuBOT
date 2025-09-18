@@ -24,9 +24,7 @@ class ConfigManager {
         val config = Config(
             fileData["token"],
             fileData["activity"],
-            fileData["notion_api_key"],
-            fileData["database_id"],
-            fileData["scenario_category_id"],
+            fileData["notion_api_key"]
         )
         Data.config = config
     }

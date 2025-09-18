@@ -22,7 +22,6 @@ class SlashCommandInteraction : ListenerAdapter() {
                 SlashCommandConst.STOP_COMMAND -> StopCommand()
                 SlashCommandConst.RESET_COMMAND -> ResetCommand()
                 SlashCommandConst.MAKE_HO_COMMAND -> MakeHOCommand()
-                SlashCommandConst.CHECK_SCHEDULE_COMMAND -> CheckCommand()
                 SlashCommandConst.SEND_COMMAND -> SendCommand()
                 SlashCommandConst.JOIN_VC_COMMAND -> JoinVCCommand()
                 SlashCommandConst.ARCHIVE_COMMAND -> ArchiveCommand()

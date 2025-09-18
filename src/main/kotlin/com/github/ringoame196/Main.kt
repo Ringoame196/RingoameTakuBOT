@@ -3,7 +3,6 @@ package com.github.ringoame196
 import com.github.ringoame196.datas.Data
 import com.github.ringoame196.manager.ConfigManager
 import com.github.ringoame196.manager.DiscordManager
-import com.github.ringoame196.manager.NotificationManager
 import java.util.Calendar
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -31,23 +30,8 @@ fun main() {
 }
 
 fun executeRegularly() {
-    val notificationManager = NotificationManager()
     val scheduler = Executors.newSingleThreadScheduledExecutor()
     val now = Calendar.getInstance()
-
-    // ===== 0時タスク =====
-    val midnight = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-        if (now.after(this)) add(Calendar.DAY_OF_MONTH, 1)
-    }
-    val delayMidnight = midnight.timeInMillis - now.timeInMillis
-
-    scheduler.scheduleAtFixedRate({
-        notificationManager.check()
-    }, delayMidnight, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS)
 
     // ===== 1時タスク =====
     val discordManager = DiscordManager()
