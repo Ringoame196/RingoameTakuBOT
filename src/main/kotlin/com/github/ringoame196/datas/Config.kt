@@ -4,5 +4,5 @@ data class Config(
     val token: String?,
     val activity: String?,
     val welcomeChannelID: String?,
-    val rebootTime: Int?
+    val rebootTime: Int
 )

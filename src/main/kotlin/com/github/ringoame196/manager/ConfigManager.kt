@@ -25,7 +25,7 @@ class ConfigManager {
             fileData["token"],
             fileData["activity"],
             fileData["notion_api_key"],
-            fileData["reboot_time"]?.toIntOrNull()
+            fileData["reboot_time"] as? Int ?: -1
         )
         Data.config = config
     }
