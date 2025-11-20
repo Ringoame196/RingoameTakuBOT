@@ -26,17 +26,22 @@ fun main() {
     jda.awaitReady()
     Data.jda = jda
 
-    executeRegularly() // 定期実行開始
+    executeRegularly(Data.config.rebootTime) // 定期実行開始
 }
 
-fun executeRegularly() {
+fun executeRegularly(rebootTime: Int?) {
+    if (rebootTime != null && rebootTime > 0) {
+        reboot(rebootTime)
+    }
+}
+
+fun reboot(rebootTime: Int) {
     val scheduler = Executors.newSingleThreadScheduledExecutor()
     val now = Calendar.getInstance()
 
-    // ===== 1時タスク =====
     val discordManager = DiscordManager()
     val oneAM = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 1)
+        set(Calendar.HOUR_OF_DAY, rebootTime)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
